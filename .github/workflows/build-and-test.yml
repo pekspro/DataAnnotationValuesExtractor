@@ -1,0 +1,72 @@
+name: Build and test
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        # os: [ubuntu-latest, windows-latest, macos-latest]
+   
+    
+    steps:
+      - uses: actions/checkout@v5
+  
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            9.0.x
+            8.0.x
+            7.0.x
+            6.0.x
+
+      - name: Force globaljson
+        run: dotnet new globaljson --sdk-version "9.0.305" --force
+
+      - name: Cache ~/.nuget/packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            .nuke/temp
+            ~/.nuget/packages
+            !~/.nuget/packages/pekspro.DataAnnotationValuesExtractor
+            !~/.nuget/packages/pekspro.DataAnnotationValuesExtractor.attributes
+          key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
+
+      - name: Restore dependencies
+        run: dotnet restore ./Source/
+
+      - name: Build
+        run: dotnet build ./Source/ --no-restore --configuration Debug
+
+      - name: Test
+        run: dotnet test ./Source/ --no-build --configuration Debug --verbosity normal
+
+      - name: Pack DataAnnotationValuesExtractor
+        run: dotnet pack ./Source/Library/Pekspro.DataAnnotationValuesExtractor/Pekspro.DataAnnotationValuesExtractor.csproj --verbosity normal --configuration Release --include-symbols /p:ContinuousIntegrationBuild=true
+
+      - name: Run sample in .NET 9
+        run: dotnet run --project ./Source/Samples/DataAnnotationValuesExtractorSample/DataAnnotationValuesExtractorSample.csproj --framework net9.0 --configuration Release
+
+      - name: Run sample in .NET 8
+        run: dotnet run --project ./Source/Samples/DataAnnotationValuesExtractorSample/DataAnnotationValuesExtractorSample.csproj --framework net8.0 --configuration Release
+
+      - name: Run sample in .NET 7
+        run: dotnet run --project ./Source/Samples/DataAnnotationValuesExtractorSample/DataAnnotationValuesExtractorSample.csproj --framework net7.0 --configuration Release
+
+      - name: Run sample in .NET 6
+        run: dotnet run --project ./Source/Samples/DataAnnotationValuesExtractorSample/DataAnnotationValuesExtractorSample.csproj --framework net6.0 --configuration Release
+            
+      - uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ${{ runner.os }}-Artifacts
+          path: Artifacts
+

@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/Library/">
+    <Project Path="Library/Pekspro.DataAnnotationValuesExtractor.Attributes/Pekspro.DataAnnotationValuesExtractor.Attributes.csproj" />
+    <Project Path="Library/Pekspro.DataAnnotationValuesExtractor/Pekspro.DataAnnotationValuesExtractor.csproj" />
+  </Folder>
+  <Folder Name="/Samples/">
+    <Project Path="Samples/DataAnnotationValuesExtractorSample/DataAnnotationValuesExtractorSample.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="../.github/workflows/build-and-test.yml" />
+    <File Path="../.github/workflows/deploy.yml" />
+    <File Path="../README.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Version.props" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Pekspro.DataAnnotationValuesExtractor.IntegrationTests/Pekspro.DataAnnotationValuesExtractor.IntegrationTests.csproj" />
+      <Project Path="Tests/Pekspro.DataAnnotationValuesExtractor.NetStandard.IntegrationTests/Pekspro.DataAnnotationValuesExtractor.NetStandard.IntegrationTests.csproj" />
+      <Project Path="Tests/Pekspro.DataAnnotationValuesExtractor.NetStandard/Pekspro.DataAnnotationValuesExtractor.NetStandard.csproj" />
+    <Project Path="Tests/Pekspro.DataAnnotationValuesExtractor.Nuget.IntegrationTests/Pekspro.DataAnnotationValuesExtractor.Nuget.IntegrationTests.csproj">
+      <Build Project="false" />
+    </Project>
+    <Project Path="Tests/Pekspro.DataAnnotationValuesExtractor.Tests/Pekspro.DataAnnotationValuesExtractor.Tests.csproj" />
+  </Folder>
+</Solution>
+

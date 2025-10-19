@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+        <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">net48;$(TargetFrameworks)</TargetFrameworks>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <NuGetAudit>false</NuGetAudit>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\$(Configuration)\GeneratedFiles</CompilerGeneratedFilesOutputPath>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Library\Pekspro.DataAnnotationValuesExtractor\Pekspro.DataAnnotationValuesExtractor.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\..\Library\Pekspro.DataAnnotationValuesExtractor.Attributes\Pekspro.DataAnnotationValuesExtractor.Attributes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Ensure data annotation attributes are available when targeting .NET Framework -->
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" Condition=" '$(TargetFramework)' == 'net48' " />
+    </ItemGroup>
+</Project>
+
