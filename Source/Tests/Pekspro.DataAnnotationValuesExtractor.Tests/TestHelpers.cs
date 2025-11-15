@@ -19,7 +19,10 @@ internal static class TestHelpers
             line => line.Replace($"""GeneratedCodeAttribute("Pekspro.DataAnnotationValuesExtractor", "{Constants.Version}")""",
                 """GeneratedCodeAttribute("Pekspro.DataAnnotationValuesExtractor", "FIXED_VERSION")"""));
 
-
+    public static SettingsTask ScrubLineBreaks(this SettingsTask settings)
+        => settings.ScrubLinesWithReplace(
+            line => line.Replace($"\\r\\n", "\\n"));
+            
     public static (ImmutableArray<Diagnostic> Diagnostics, string Output) GetGeneratedOutput<T>(params string[] source)
         where T : IIncrementalGenerator, new()
     {

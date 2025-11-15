@@ -141,6 +141,7 @@ newline"", Description = ""Tab\there"")]
         Assert.Empty(diagnostics);
         return Verifier.Verify(output)
             .ScrubGeneratedCodeAttribute()
+            .ScrubLineBreaks()
             .UseDirectory("Snapshots")
             .DisableRequireUniquePrefix();
     }
@@ -259,6 +260,7 @@ public partial class MyClass
         Assert.Empty(diagnostics);
         return Verifier.Verify(output)
             .ScrubGeneratedCodeAttribute()
+            .ScrubLineBreaks()
             .UseDirectory("Snapshots")
             .DisableRequireUniquePrefix();
     }

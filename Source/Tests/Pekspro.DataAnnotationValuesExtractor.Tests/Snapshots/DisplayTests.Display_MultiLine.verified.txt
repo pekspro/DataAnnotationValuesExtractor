@@ -33,7 +33,7 @@
                     /// <summary>
                     /// Display name for Property.
                     /// </summary>
-                    public const string? Name = "Name with\r\nnewline";
+                    public const string? Name = "Name with\nnewline";
 
                     /// <summary>
                     /// Short display name for Property.
