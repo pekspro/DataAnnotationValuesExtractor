@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Pekspro.DataAnnotationValuesExtractor;
 
@@ -12,6 +13,8 @@ public static class SourceGenerationHelper
 //     the code is regenerated.
 // </auto-generated>
 //---------------------------------------------------------------------------------------
+
+#nullable enable
 ";
 
     public static string GenerateExtensionClass(in DataAnnotationValuesDetailedOptions options)
@@ -170,6 +173,43 @@ namespace ").Append(currentNamespace).Append(@"
                 public const bool IsRequired = ").Append(property.IsRequired ? "true" : "false").Append(";");
                     }
 
+                    // Add Display values
+                    if (options.AddDisplay && property.Display.HasValue)
+                    {
+                        if (!firstValue)
+                        {
+                            propertySb.AppendLine();
+                        }
+                        else
+                        {
+                            firstValue = false;
+                        }
+
+                        var display = property.Display.Value;
+                        
+                        propertySb.Append(@"
+                /// <summary>
+                /// Display attribute values for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public static class Display
+                {
+                    /// <summary>
+                    /// Display name for ").Append(property.PropertyName).Append(@".
+                    /// </summary>
+                    public const string? Name = ").Append(display.Name != null ? EscapeString(display.Name) : "null").Append(@";
+
+                    /// <summary>
+                    /// Short display name for ").Append(property.PropertyName).Append(@".
+                    /// </summary>
+                    public const string? ShortName = ").Append(display.ShortName != null ? EscapeString(display.ShortName) : "null").Append(@";
+
+                    /// <summary>
+                    /// Description for ").Append(property.PropertyName).Append(@".
+                    /// </summary>
+                    public const string? Description = ").Append(display.Description != null ? EscapeString(display.Description) : "null").Append(@";
+                }");
+                    }
+
                     if (propertySb.Length > 0)
                     {
                         if (hasAnnotations)
@@ -262,6 +302,12 @@ namespace ").Append(options.Namespace).Append(@"
             sb.Append(@"
 }");
         }
+    }
+
+    private static string EscapeString(string value)
+    {
+        // Use the built-in Roslyn method to format string literals correctly
+        return SymbolDisplay.FormatLiteral(value, quote: true);
     }
 }
 

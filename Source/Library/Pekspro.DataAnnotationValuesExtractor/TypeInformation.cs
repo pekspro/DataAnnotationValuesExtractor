@@ -100,13 +100,15 @@ public readonly struct PropertyInformation : IEquatable<PropertyInformation>
     public readonly StringLengthInfo? StringLength;
     public readonly RangeInfo? Range;
     public readonly bool IsRequired;
+    public readonly DisplayInfo? Display;
 
-    public PropertyInformation(string propertyName, StringLengthInfo? stringLength, RangeInfo? range, bool isRequired)
+    public PropertyInformation(string propertyName, StringLengthInfo? stringLength, RangeInfo? range, bool isRequired, DisplayInfo? display = null)
     {
         PropertyName = propertyName;
         StringLength = stringLength;
         Range = range;
         IsRequired = isRequired;
+        Display = display;
     }
 
     public bool Equals(PropertyInformation other)
@@ -114,7 +116,8 @@ public readonly struct PropertyInformation : IEquatable<PropertyInformation>
         return PropertyName == other.PropertyName
             && Nullable.Equals(StringLength, other.StringLength)
             && Nullable.Equals(Range, other.Range)
-            && IsRequired == other.IsRequired;
+            && IsRequired == other.IsRequired
+            && Nullable.Equals(Display, other.Display);
     }
 
     public override bool Equals(object? obj)
@@ -131,6 +134,7 @@ public readonly struct PropertyInformation : IEquatable<PropertyInformation>
             hash = hash * 23 + (StringLength?.GetHashCode() ?? 0);
             hash = hash * 23 + (Range?.GetHashCode() ?? 0);
             hash = hash * 23 + IsRequired.GetHashCode();
+            hash = hash * 23 + (Display?.GetHashCode() ?? 0);
             return hash;
         }
     }
@@ -246,6 +250,57 @@ public readonly struct RangeInfo : IEquatable<RangeInfo>
     }
 
     public static bool operator !=(RangeInfo left, RangeInfo right)
+    {
+        return !left.Equals(right);
+    }
+}
+
+/// <summary>
+/// Represents Display attribute information.
+/// </summary>
+public readonly struct DisplayInfo : IEquatable<DisplayInfo>
+{
+    public readonly string? Name;
+    public readonly string? ShortName;
+    public readonly string? Description;
+
+    public DisplayInfo(string? name, string? shortName, string? description)
+    {
+        Name = name;
+        ShortName = shortName;
+        Description = description;
+    }
+
+    public bool Equals(DisplayInfo other)
+    {
+        return Name == other.Name
+            && ShortName == other.ShortName
+            && Description == other.Description;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is DisplayInfo other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            int hash = 17;
+            hash = hash * 23 + (Name?.GetHashCode() ?? 0);
+            hash = hash * 23 + (ShortName?.GetHashCode() ?? 0);
+            hash = hash * 23 + (Description?.GetHashCode() ?? 0);
+            return hash;
+        }
+    }
+
+    public static bool operator ==(DisplayInfo left, DisplayInfo right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(DisplayInfo left, DisplayInfo right)
     {
         return !left.Equals(right);
     }

@@ -49,26 +49,6 @@ public partial class RequiredDirectClass
     public string LastName { get; set; } = string.Empty;
 }
 
-// ===== Centralized Tests - Direct Approach =====
-
-[DataAnnotationValues(StringLength = true, Range = true, Required = true)]
-public partial class AllAnnotationsDirectClass
-{
-    [Required]
-    [StringLength(50)]
-    public string Name { get; set; } = string.Empty;
-
-    [StringLength(100)]
-    public string Email { get; set; } = string.Empty;
-
-    [Range(18, 120)]
-    public int Rank { get; set; }
-
-    [Required]
-    [Range(0, 100)]
-    public int Score { get; set; }
-}
-
 // ===== StringLength Tests - Centralized Approach =====
 
 public partial class StringLengthCentralizedClass1
@@ -154,6 +134,86 @@ partial class RequiredCentralizedValues
 {
 }
 
+// ===== Display Tests - Direct Approach =====
+
+[DataAnnotationValues(Display = true)]
+public partial class DisplayDirectClass
+{
+    [Display(Name = "User Name", ShortName = "Name", Description = "The user's full name")]
+    public string FullName { get; set; } = string.Empty;
+
+    [Display(Name = "Email Address", ShortName = "Email", Description = "The user's email with \"quotes\"")]
+    public string Email { get; set; } = string.Empty;
+
+    [Display(Name = "Phone Number", ShortName = null, Description = null)]
+    public string Phone { get; set; } = string.Empty;
+}
+
+// ===== Display Tests - Centralized Approach =====
+
+public partial class DisplayCentralizedClass1
+{
+    [Display(Name = "First Name", ShortName = "First", Description = "User's first name")]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Display(Name = "Last Name", ShortName = "Last", Description = "User's last name with \"special\" characters")]
+    public string LastName { get; set; } = string.Empty;
+}
+
+public partial class DisplayCentralizedClass2
+{
+  [Display(Name = "Address Line", ShortName = "Addr", Description = null)]
+    public string Address { get; set; } = string.Empty;
+
+    [Display(Name = "City", ShortName = null, Description = "The city name")]
+    public string City { get; set; } = string.Empty;
+
+    [Display(Name = "Postal Code", ShortName = null, Description = null)]
+    public string PostalCode { get; set; } = string.Empty;
+}
+
+[DataAnnotationValuesOptions(Display = true)]
+[DataAnnotationValuesToGenerate(typeof(DisplayCentralizedClass1))]
+[DataAnnotationValuesToGenerate(typeof(DisplayCentralizedClass2))]
+partial class DisplayCentralizedValues
+{
+}
+
+
+// ===== All Annotations - Direct Approach =====
+
+[DataAnnotationValues(StringLength = true, Range = true, Required = true, Display = true)]
+public partial class AllAnnotationsDirectClass
+{
+    [Required]
+    [StringLength(50)]
+    [Display(Name = "Product Name", ShortName = "Name", Description = "The product's display name")]
+    public string Name { get; set; } = string.Empty;
+
+    [StringLength(100)]
+    public string Email { get; set; } = string.Empty;
+
+    [Range(18, 120)]
+    public int Rank { get; set; }
+
+    [Required]
+    [Range(0, 100)]
+    public int Score { get; set; }
+
+    [StringLength(500)]
+    [Display(Name = "Product Description", ShortName = "Desc", Description = "Detailed description with \"quotes\" and 'apostrophes'")]
+    public string Description { get; set; } = string.Empty;
+
+    [Range(0, 1000)]
+    [Display(Name = "Price", ShortName = "Cost", Description = null)]
+    public decimal Price { get; set; }
+
+    [Required]
+    [Display(Name = "In Stock", ShortName = null, Description = null)]
+    public bool InStock { get; set; }
+}
+
+
 // ===== All Annotations - Centralized Approach =====
 
 public partial class AllAnnotationsCentralizedClass1
@@ -164,6 +224,15 @@ public partial class AllAnnotationsCentralizedClass1
 
     [Range(18, 100)]
     public int Rank { get; set; }
+
+    [Required]
+    [StringLength(100)]
+    [Display(Name = "Author Name", ShortName = "Author", Description = "Name of the author")]
+    public string AuthorName { get; set; } = string.Empty;
+
+    [Range(1900, 2100)]
+    [Display(Name = "Publication Year", ShortName = "Year", Description = "Year \"published\" in")]
+public int PublicationYear { get; set; }
 }
 
 public partial class AllAnnotationsCentralizedClass2
@@ -175,14 +244,25 @@ public partial class AllAnnotationsCentralizedClass2
     [Required]
     [Range(1, 5)]
     public int Priority { get; set; }
+
+    [Required]
+    [StringLength(200)]
+    [Display(Name = "Review Text", ShortName = "Review", Description = null)]
+    public string ReviewText { get; set; } = string.Empty;
+
+    [Range(1, 5)]
+    [Display(Name = "Rating", ShortName = null, Description = "Rating from 1 to 5 stars")]
+    public int Rating { get; set; }
 }
 
-[DataAnnotationValuesOptions(StringLength = true, Range = true, Required = true)]
+
+[DataAnnotationValuesOptions(StringLength = true, Range = true, Required = true, Display = true)]
 [DataAnnotationValuesToGenerate(typeof(AllAnnotationsCentralizedClass1))]
 [DataAnnotationValuesToGenerate(typeof(AllAnnotationsCentralizedClass2))]
 partial class AllAnnotationsCentralizedValues
 {
 }
+
 
 #pragma warning restore CS1591
 

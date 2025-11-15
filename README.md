@@ -6,8 +6,8 @@ status](https://github.com/pekspro/DataAnnotationValuesExtractor/actions/workflo
 
 A C# source generator that automatically extracts values from data annotation
 attributes and exposes them as strongly-typed constants. Access your
-`StringLength`, `Range`, and `Required` attribute values at constants in your
-classes.
+`StringLength`, `Range`, `Required` and `Display` attribute values as constants
+in your classes.
 
 ## Why Use This?
 
@@ -46,7 +46,7 @@ double maxPrice = Product.Annotations.Price.Maximum; // 999999.99
 
 ## Usage Patterns
 
-There are two ways configure use DataAnnotationValuesExtractor depending on your
+There are two ways to configure DataAnnotationValuesExtractor depending on your
 needs:
 
 ### 1. Direct Approach
@@ -55,13 +55,15 @@ Apply `[DataAnnotationValues]` directly to each class you want to generate
 constants for:
 
 ```csharp
-[DataAnnotationValues(StringLength = true, Range = true, Required = true)]
+[DataAnnotationValues(StringLength = true, Range = true, Required = true, Display = true)]
 public partial class Product
 {
+    [Display(Name = "Product name")]
     [Required]
     [StringLength(100)]
     public string? Name { get; set; }
 
+    [Display(Name = "Product price")]
     [Required]
     [Range(0.01, 999999.99)]
     public decimal Price { get; set; }
@@ -79,7 +81,7 @@ each class you want to generate constants for. You can use the
 ```csharp
 using Pekspro.DataAnnotationValuesExtractor;
 
-[DataAnnotationValuesConfiguration(StringLength = true, Range = true, Required = true)]
+[DataAnnotationValuesConfiguration(StringLength = true, Range = true, Required = true, Display = true)]
 [DataAnnotationValuesToGenerate(typeof(Customer))]
 [DataAnnotationValuesToGenerate(typeof(Order))]
 [DataAnnotationValuesToGenerate(typeof(Product))]
@@ -108,17 +110,19 @@ No matter which approach your are using, you can access generated constants like
 this:
 
 ```csharp
-// Name length constraints
+// Name
 int maxNameLength = Product.Annotations.Name.MaximumLength; // 100
 int minNameLength = Product.Annotations.Name.MinimumLength; // 0
 bool nameRequired = Product.Annotations.Name.IsRequired; // true
+string? nameDisplayName = Product.Annotations.Name.Display.Name; // Product name
 
-// Price constraints
+// Price
 double minPrice = Product.Annotations.Price.Minimum; // 0.01
 double maxPrice = Product.Annotations.Price.Maximum; // 999999.99
 bool priceRequired = Product.Annotations.Price.IsRequired;
+string? priceDisplayName = Product.Annotations.Price.Display.Name; // Price name
 
-// Sky constraints
+// Sku
 bool skuRequired = Product.Annotations.Sku.IsRequired; // false
 ```
 
@@ -157,6 +161,7 @@ the following properties to control which constants are generated:
 | `StringLength` | `true`  | `MaximumLength`, `MinimumLength`                                 | Extract values from `[StringLength]` attribute. |
 | `Range`        | `true`  | `Minimum`, `Maximum`, `MinimumIsExclusive`, `MaximumIsExclusive` | Extract values from `[Range]` attribute.        |
 | `Required`     | `false` | `IsRequired`                                                     | Detect presence of `[Required]` attribute.      |
+| `Display`     | `false` | `Name`, `Description`, `ShortName`                                | Extract values from `[Display]` attribute.      |
 
 Do you miss some annotations? Create an issue and let me know.
 
@@ -188,9 +193,10 @@ directory.
 Given this input:
 
 ```csharp
-[DataAnnotationValues(StringLength = true, Range = true, Required = true)]
+[DataAnnotationValues(StringLength = true, Range = true, Required = true, Display = true)]
 public partial class Player
 {
+    [Display(Name = "Player name", ShortName ="Name", Description = "Name of player")]
     [Required]
     [StringLength(50)]
     public string? Name { get; set; }
@@ -232,6 +238,27 @@ public partial class Player
             /// Indicates whether Name is required.
             /// </summary>
             public const bool IsRequired = true;
+
+            /// <summary>
+            /// Display attribute values for Name.
+            /// </summary>
+            public static class Display
+            {
+                /// <summary>
+                /// Display name for Name.
+                /// </summary>
+                public const string? Name = "Player name";
+
+                /// <summary>
+                /// Short display name for Name.
+                /// </summary>
+                public const string? ShortName = "Name";
+
+                /// <summary>
+                /// Description for Name.
+                /// </summary>
+                public const string? Description = "Name of player";
+            }
         }
 
         /// <summary>

@@ -111,7 +111,7 @@ public class DataAnnotationValuesTest
     [Fact]
     public void AllAnnotationsDirect_VerifyNestedTypeCount()
     {
-        Assert.Equal(4, typeof(AllAnnotationsDirectClass.Annotations).GetNestedTypes().Length);
+        Assert.Equal(7, typeof(AllAnnotationsDirectClass.Annotations).GetNestedTypes().Length);
     }
 
     // ===== StringLength Centralized Approach Tests =====
@@ -180,7 +180,7 @@ public class DataAnnotationValuesTest
     {
         Assert.True(RequiredCentralizedClass1.Annotations.Email.IsRequired);
         Assert.True(RequiredCentralizedClass1.Annotations.Address.IsRequired);
-        
+
         // Phone has no annotation, so it won't be in Annotations
         Assert.Equal(3, typeof(RequiredCentralizedClass1.Annotations).GetNestedTypes().Length);
     }
@@ -190,9 +190,156 @@ public class DataAnnotationValuesTest
     {
         Assert.True(RequiredCentralizedClass2.Annotations.City.IsRequired);
         Assert.True(RequiredCentralizedClass2.Annotations.Country.IsRequired);
-        
+
         // PostalCode has no annotation, so it won't be in Annotations
         Assert.Equal(3, typeof(RequiredCentralizedClass2.Annotations).GetNestedTypes().Length);
+    }
+
+    // ===== Display Direct Approach Tests =====
+
+    [Fact]
+    public void DisplayDirect_VerifyDisplayName()
+    {
+        Assert.Equal("User Name", DisplayDirectClass.Annotations.FullName.Display.Name);
+        Assert.Equal("Email Address", DisplayDirectClass.Annotations.Email.Display.Name);
+        Assert.Equal("Phone Number", DisplayDirectClass.Annotations.Phone.Display.Name);
+    }
+
+    [Fact]
+    public void DisplayDirect_VerifyDisplayShortName()
+    {
+        Assert.Equal("Name", DisplayDirectClass.Annotations.FullName.Display.ShortName);
+        Assert.Equal("Email", DisplayDirectClass.Annotations.Email.Display.ShortName);
+        Assert.Null(DisplayDirectClass.Annotations.Phone.Display.ShortName);
+    }
+
+    [Fact]
+    public void DisplayDirect_VerifyDisplayDescription()
+    {
+        Assert.Equal("The user's full name", DisplayDirectClass.Annotations.FullName.Display.Description);
+        Assert.Equal("The user's email with \"quotes\"", DisplayDirectClass.Annotations.Email.Display.Description);
+        Assert.Null(DisplayDirectClass.Annotations.Phone.Display.Description);
+    }
+
+    [Fact]
+    public void DisplayDirect_VerifyNestedTypeCount()
+    {
+        Assert.Equal(3, typeof(DisplayDirectClass.Annotations).GetNestedTypes().Length);
+    }
+
+    // ===== Display Centralized Approach Tests =====
+
+    [Fact]
+    public void DisplayCentralized_Class1_VerifyDisplayNames()
+    {
+        Assert.Equal("First Name", DisplayCentralizedClass1.Annotations.FirstName.Display.Name);
+        Assert.Equal("Last Name", DisplayCentralizedClass1.Annotations.LastName.Display.Name);
+    }
+
+    [Fact]
+    public void DisplayCentralized_Class1_VerifyDisplayShortNames()
+    {
+        Assert.Equal("First", DisplayCentralizedClass1.Annotations.FirstName.Display.ShortName);
+        Assert.Equal("Last", DisplayCentralizedClass1.Annotations.LastName.Display.ShortName);
+    }
+
+    [Fact]
+    public void DisplayCentralized_Class1_VerifyDisplayDescriptions()
+    {
+        Assert.Equal("User's first name", DisplayCentralizedClass1.Annotations.FirstName.Display.Description);
+        Assert.Equal("User's last name with \"special\" characters", DisplayCentralizedClass1.Annotations.LastName.Display.Description);
+    }
+
+    [Fact]
+    public void DisplayCentralized_Class2_VerifyDisplayNames()
+    {
+        Assert.Equal("Address Line", DisplayCentralizedClass2.Annotations.Address.Display.Name);
+        Assert.Equal("City", DisplayCentralizedClass2.Annotations.City.Display.Name);
+        Assert.Equal("Postal Code", DisplayCentralizedClass2.Annotations.PostalCode.Display.Name);
+    }
+
+    [Fact]
+    public void DisplayCentralized_Class2_VerifyDisplayShortNames()
+    {
+        Assert.Equal("Addr", DisplayCentralizedClass2.Annotations.Address.Display.ShortName);
+        Assert.Null(DisplayCentralizedClass2.Annotations.City.Display.ShortName);
+        Assert.Null(DisplayCentralizedClass2.Annotations.PostalCode.Display.ShortName);
+    }
+
+    [Fact]
+    public void DisplayCentralized_Class2_VerifyDisplayDescriptions()
+    {
+        Assert.Null(DisplayCentralizedClass2.Annotations.Address.Display.Description);
+        Assert.Equal("The city name", DisplayCentralizedClass2.Annotations.City.Display.Description);
+        Assert.Null(DisplayCentralizedClass2.Annotations.PostalCode.Display.Description);
+    }
+
+    [Fact]
+    public void DisplayCentralized_VerifyNestedTypeCounts()
+    {
+        Assert.Equal(2, typeof(DisplayCentralizedClass1.Annotations).GetNestedTypes().Length);
+        Assert.Equal(3, typeof(DisplayCentralizedClass2.Annotations).GetNestedTypes().Length);
+    }
+
+
+    // ===== All Annotations With Direct Approach Tests =====
+
+    [Fact]
+    public void AllAnnotationsWithDisplayDirect_VerifyStringLength()
+    {
+        Assert.Equal(50, AllAnnotationsDirectClass.Annotations.Name.MaximumLength);
+        Assert.Equal(0, AllAnnotationsDirectClass.Annotations.Name.MinimumLength);
+        Assert.Equal(500, AllAnnotationsDirectClass.Annotations.Description.MaximumLength);
+        Assert.Equal(0, AllAnnotationsDirectClass.Annotations.Description.MinimumLength);
+    }
+
+    [Fact]
+    public void AllAnnotationsWithDisplayDirect_VerifyRange()
+    {
+        Assert.Equal(0, AllAnnotationsDirectClass.Annotations.Price.Minimum);
+        Assert.Equal(1000, AllAnnotationsDirectClass.Annotations.Price.Maximum);
+    }
+
+    [Fact]
+    public void AllAnnotationsWithDisplayDirect_VerifyRequired()
+    {
+        Assert.True(AllAnnotationsDirectClass.Annotations.Name.IsRequired);
+        Assert.False(AllAnnotationsDirectClass.Annotations.Description.IsRequired);
+        Assert.False(AllAnnotationsDirectClass.Annotations.Price.IsRequired);
+        Assert.True(AllAnnotationsDirectClass.Annotations.InStock.IsRequired);
+    }
+
+    [Fact]
+    public void AllAnnotationsWithDisplayDirect_VerifyDisplayNames()
+    {
+        Assert.Equal("Product Name", AllAnnotationsDirectClass.Annotations.Name.Display.Name);
+        Assert.Equal("Product Description", AllAnnotationsDirectClass.Annotations.Description.Display.Name);
+        Assert.Equal("Price", AllAnnotationsDirectClass.Annotations.Price.Display.Name);
+        Assert.Equal("In Stock", AllAnnotationsDirectClass.Annotations.InStock.Display.Name);
+    }
+
+    [Fact]
+    public void AllAnnotationsWithDisplayDirect_VerifyDisplayShortNames()
+    {
+        Assert.Equal("Name", AllAnnotationsDirectClass.Annotations.Name.Display.ShortName);
+        Assert.Equal("Desc", AllAnnotationsDirectClass.Annotations.Description.Display.ShortName);
+        Assert.Equal("Cost", AllAnnotationsDirectClass.Annotations.Price.Display.ShortName);
+        Assert.Null(AllAnnotationsDirectClass.Annotations.InStock.Display.ShortName);
+    }
+
+    [Fact]
+    public void AllAnnotationsWithDisplayDirect_VerifyDisplayDescriptions()
+    {
+        Assert.Equal("The product's display name", AllAnnotationsDirectClass.Annotations.Name.Display.Description);
+        Assert.Equal("Detailed description with \"quotes\" and 'apostrophes'", AllAnnotationsDirectClass.Annotations.Description.Display.Description);
+        Assert.Null(AllAnnotationsDirectClass.Annotations.Price.Display.Description);
+        Assert.Null(AllAnnotationsDirectClass.Annotations.InStock.Display.Description);
+    }
+
+    [Fact]
+    public void AllAnnotationsWithDisplayDirect_VerifyNestedTypeCount()
+    {
+        Assert.Equal(7, typeof(AllAnnotationsDirectClass.Annotations).GetNestedTypes().Length);
     }
 
     // ===== All Annotations Centralized Approach Tests =====
@@ -203,14 +350,29 @@ public class DataAnnotationValuesTest
         // StringLength
         Assert.Equal(50, AllAnnotationsCentralizedClass1.Annotations.FullName.MaximumLength);
         Assert.Equal(0, AllAnnotationsCentralizedClass1.Annotations.FullName.MinimumLength);
-        
+        Assert.Equal(100, AllAnnotationsCentralizedClass1.Annotations.AuthorName.MaximumLength);
+        Assert.Equal(0, AllAnnotationsCentralizedClass1.Annotations.AuthorName.MinimumLength);
+
         // Range
         Assert.Equal(18, AllAnnotationsCentralizedClass1.Annotations.Rank.Minimum);
         Assert.Equal(100, AllAnnotationsCentralizedClass1.Annotations.Rank.Maximum);
-        
+        Assert.Equal(1900, AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Minimum);
+        Assert.Equal(2100, AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Maximum);
+
         // Required
         Assert.True(AllAnnotationsCentralizedClass1.Annotations.FullName.IsRequired);
         Assert.False(AllAnnotationsCentralizedClass1.Annotations.Rank.IsRequired);
+        Assert.True(AllAnnotationsCentralizedClass1.Annotations.AuthorName.IsRequired);
+        Assert.False(AllAnnotationsCentralizedClass1.Annotations.PublicationYear.IsRequired);
+
+        // Display
+        Assert.Equal("Author Name", AllAnnotationsCentralizedClass1.Annotations.AuthorName.Display.Name);
+        Assert.Equal("Author", AllAnnotationsCentralizedClass1.Annotations.AuthorName.Display.ShortName);
+        Assert.Equal("Name of the author", AllAnnotationsCentralizedClass1.Annotations.AuthorName.Display.Description);
+
+        Assert.Equal("Publication Year", AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Display.Name);
+        Assert.Equal("Year", AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Display.ShortName);
+        Assert.Equal("Year \"published\" in", AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Display.Description);
     }
 
     [Fact]
@@ -219,23 +381,45 @@ public class DataAnnotationValuesTest
         // StringLength
         Assert.Equal(100, AllAnnotationsCentralizedClass2.Annotations.Email.MaximumLength);
         Assert.Equal(0, AllAnnotationsCentralizedClass2.Annotations.Email.MinimumLength);
-        
+        Assert.Equal(200, AllAnnotationsCentralizedClass2.Annotations.ReviewText.MaximumLength);
+        Assert.Equal(0, AllAnnotationsCentralizedClass2.Annotations.ReviewText.MinimumLength);
+
         // Range
         Assert.Equal(1, AllAnnotationsCentralizedClass2.Annotations.Priority.Minimum);
         Assert.Equal(5, AllAnnotationsCentralizedClass2.Annotations.Priority.Maximum);
-        
+        Assert.Equal(1, AllAnnotationsCentralizedClass2.Annotations.Rating.Minimum);
+        Assert.Equal(5, AllAnnotationsCentralizedClass2.Annotations.Rating.Maximum);
+
         // Required
         Assert.True(AllAnnotationsCentralizedClass2.Annotations.Email.IsRequired);
         Assert.True(AllAnnotationsCentralizedClass2.Annotations.Priority.IsRequired);
+        Assert.True(AllAnnotationsCentralizedClass2.Annotations.ReviewText.IsRequired);
+        Assert.False(AllAnnotationsCentralizedClass2.Annotations.Rating.IsRequired);
+
+        // Display
+        Assert.Equal("Review Text", AllAnnotationsCentralizedClass2.Annotations.ReviewText.Display.Name);
+        Assert.Equal("Review", AllAnnotationsCentralizedClass2.Annotations.ReviewText.Display.ShortName);
+        Assert.Null(AllAnnotationsCentralizedClass2.Annotations.ReviewText.Display.Description);
+
+        Assert.Equal("Rating", AllAnnotationsCentralizedClass2.Annotations.Rating.Display.Name);
+        Assert.Null(AllAnnotationsCentralizedClass2.Annotations.Rating.Display.ShortName);
+        Assert.Equal("Rating from 1 to 5 stars", AllAnnotationsCentralizedClass2.Annotations.Rating.Display.Description);
     }
 
     [Fact]
     public void AllAnnotationsCentralized_VerifyNestedTypeCounts()
     {
-        Assert.Equal(2, typeof(AllAnnotationsCentralizedClass1.Annotations).GetNestedTypes().Length);
-        Assert.Equal(2, typeof(AllAnnotationsCentralizedClass2.Annotations).GetNestedTypes().Length);
+        Assert.Equal(4, typeof(AllAnnotationsCentralizedClass1.Annotations).GetNestedTypes().Length);
+        Assert.Equal(4, typeof(AllAnnotationsCentralizedClass2.Annotations).GetNestedTypes().Length);
     }
+
+
+
 }
+
+
+
+
 
 
 

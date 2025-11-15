@@ -77,6 +77,7 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         bool addStringLength = true;
         bool addRange = true;
         bool addRequired = false;
+        bool addDisplay = false;
         var typesBuilder = ImmutableArray.CreateBuilder<ITypeSymbol>();
 
         foreach (AttributeData attributeData in symbol.GetAttributes())
@@ -103,6 +104,12 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                     {
                         addRequired = required;
                     }
+
+                    if (namedArgument.Key == nameof(DataAnnotationValuesOptionsAttribute.Display)
+                        && namedArgument.Value.Value is bool display)
+                    {
+                        addDisplay = display;
+                    }
                 }
             }
             else if (attributeData.AttributeClass?.Name == "DataAnnotationValuesToGenerateAttribute" &&
@@ -127,10 +134,11 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                 name,
                 nameSpace,
                 filePath,
-                ExtractTypeInformation(typesBuilder.ToImmutable(), addStringLength, addRange, addRequired),
+                ExtractTypeInformation(typesBuilder.ToImmutable(), addStringLength, addRange, addRequired, addDisplay),
                 addStringLength,
                 addRange,
-                addRequired
+                addRequired,
+                addDisplay
             );
     }
 
@@ -158,6 +166,7 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         bool addStringLength = true;
         bool addRange = true;
         bool addRequired = false;
+        bool addDisplay = false;
 
         // Get configuration from the DataAnnotationValuesAttribute
         foreach (AttributeData attributeData in symbol.GetAttributes())
@@ -184,6 +193,12 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                     {
                         addRequired = required;
                     }
+
+                    if (namedArgument.Key == nameof(DataAnnotationValuesAttribute.Display)
+                        && namedArgument.Value.Value is bool display)
+                    {
+                        addDisplay = display;
+                    }
                 }
             }
         }
@@ -196,10 +211,11 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                 name,
                 nameSpace,
                 filePath,
-                ExtractTypeInformation(types, addStringLength, addRange, addRequired),
+                ExtractTypeInformation(types, addStringLength, addRange, addRequired, addDisplay),
                 addStringLength,
                 addRange,
-                addRequired
+                addRequired,
+                addDisplay
             );
     }
 
@@ -207,7 +223,8 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         ImmutableArray<ITypeSymbol> typeSymbols,
         bool includeStringLength,
         bool includeRange,
-        bool includeRequired)
+        bool includeRequired,
+        bool includeDisplay)
     {
         var builder = ImmutableArray.CreateBuilder<TypeInformation>();
 
@@ -221,6 +238,7 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                 StringLengthInfo? stringLength = null;
                 RangeInfo? range = null;
                 bool isRequired = false;
+                DisplayInfo? display = null;
 
                 // Check for StringLength attribute
                 if (includeStringLength)
@@ -289,14 +307,53 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                     isRequired = requiredAttr != null;
                 }
 
+                // Check for Display attribute
+                if (includeDisplay)
+                {
+                    var displayAttr = property.GetAttributes()
+                        .FirstOrDefault(a => a.AttributeClass?.Name == "DisplayAttribute" &&
+                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
+
+                    if (displayAttr != null)
+                    {
+                        string? name = null;
+                        string? shortName = null;
+                        string? description = null;
+
+                        // Extract named arguments
+                        foreach (var namedArg in displayAttr.NamedArguments)
+                        {
+                            if (namedArg.Key == "Name" && namedArg.Value.Value is string nameValue)
+                            {
+                                name = nameValue;
+                            }
+                            else if (namedArg.Key == "ShortName" && namedArg.Value.Value is string shortNameValue)
+                            {
+                                shortName = shortNameValue;
+                            }
+                            else if (namedArg.Key == "Description" && namedArg.Value.Value is string descriptionValue)
+                            {
+                                description = descriptionValue;
+                            }
+                        }
+
+                        // Only create DisplayInfo if at least one value is present
+                        if (name != null || shortName != null || description != null)
+                        {
+                            display = new DisplayInfo(name, shortName, description);
+                        }
+                    }
+                }
+
                 // Only add property if it has any attributes we're tracking
-                if (stringLength.HasValue || range.HasValue || includeRequired)
+                if (stringLength.HasValue || range.HasValue || includeRequired || display.HasValue)
                 {
                     propertyInfos.Add(new PropertyInformation(
                         property.Name,
                         stringLength,
                         range,
-                        isRequired));
+                        isRequired,
+                        display));
                 }
             }
 

@@ -14,6 +14,7 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
     public readonly bool AddStringLength;
     public readonly bool AddRange;
     public readonly bool AddRequired;
+    public readonly bool AddDisplay;
     
     public DataAnnotationValuesDetailedOptions(
         string name,
@@ -22,7 +23,8 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
         ImmutableArray<TypeInformation> types,
         bool addStringLength,
         bool addRange,
-        bool addRequired
+        bool addRequired,
+        bool addDisplay = false
         )
     {
         Name = name;
@@ -42,6 +44,7 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
         AddStringLength = addStringLength;
         AddRange = addRange;
         AddRequired = addRequired;
+        AddDisplay = addDisplay;
     }
 
     public bool Equals(DataAnnotationValuesDetailedOptions other)
@@ -53,6 +56,7 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
             && AddStringLength == other.AddStringLength
             && AddRange == other.AddRange
             && AddRequired == other.AddRequired
+            && AddDisplay == other.AddDisplay
             && TypesEqual(Types, other.Types);
     }
 
@@ -101,6 +105,7 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
             hash = hash * 23 + AddStringLength.GetHashCode();
             hash = hash * 23 + AddRange.GetHashCode();
             hash = hash * 23 + AddRequired.GetHashCode();
+            hash = hash * 23 + AddDisplay.GetHashCode();
             
             if (!Types.IsDefault)
             {
