@@ -102,8 +102,10 @@ public readonly struct PropertyInformation : IEquatable<PropertyInformation>
     public readonly bool IsRequired;
     public readonly DisplayInfo? Display;
     public readonly DescriptionInfo? Description;
+    public readonly MaxLengthInfo? MaxLength;
+    public readonly MinLengthInfo? MinLength;
 
-    public PropertyInformation(string propertyName, StringLengthInfo? stringLength, RangeInfo? range, bool isRequired, DisplayInfo? display = null, DescriptionInfo? description = null)
+    public PropertyInformation(string propertyName, StringLengthInfo? stringLength, RangeInfo? range, bool isRequired, DisplayInfo? display = null, DescriptionInfo? description = null, MaxLengthInfo? maxLength = null, MinLengthInfo? minLength = null)
     {
         PropertyName = propertyName;
         StringLength = stringLength;
@@ -111,6 +113,8 @@ public readonly struct PropertyInformation : IEquatable<PropertyInformation>
         IsRequired = isRequired;
         Display = display;
         Description = description;
+        MaxLength = maxLength;
+        MinLength = minLength;
     }
 
     public bool Equals(PropertyInformation other)
@@ -120,7 +124,9 @@ public readonly struct PropertyInformation : IEquatable<PropertyInformation>
             && Nullable.Equals(Range, other.Range)
             && IsRequired == other.IsRequired
             && Nullable.Equals(Display, other.Display)
-            && Nullable.Equals(Description, other.Description);
+            && Nullable.Equals(Description, other.Description)
+            && Nullable.Equals(MaxLength, other.MaxLength)
+            && Nullable.Equals(MinLength, other.MinLength);
     }
 
     public override bool Equals(object? obj)
@@ -139,6 +145,8 @@ public readonly struct PropertyInformation : IEquatable<PropertyInformation>
             hash = hash * 23 + IsRequired.GetHashCode();
             hash = hash * 23 + (Display?.GetHashCode() ?? 0);
             hash = hash * 23 + (Description?.GetHashCode() ?? 0);
+            hash = hash * 23 + (MaxLength?.GetHashCode() ?? 0);
+            hash = hash * 23 + (MinLength?.GetHashCode() ?? 0);
             return hash;
         }
     }
@@ -353,3 +361,88 @@ public readonly struct DescriptionInfo : IEquatable<DescriptionInfo>
     }
 }
 
+/// <summary>
+/// Represents MaxLength attribute information.
+/// </summary>
+public readonly struct MaxLengthInfo : IEquatable<MaxLengthInfo>
+{
+    public readonly int Length;
+
+    public MaxLengthInfo(int length)
+    {
+        Length = length;
+    }
+
+    public bool Equals(MaxLengthInfo other)
+    {
+        return Length == other.Length;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is MaxLengthInfo other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            int hash = 17;
+            hash = hash * 23 + Length.GetHashCode();
+            return hash;
+        }
+    }
+
+    public static bool operator ==(MaxLengthInfo left, MaxLengthInfo right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(MaxLengthInfo left, MaxLengthInfo right)
+    {
+        return !left.Equals(right);
+    }
+}
+
+/// <summary>
+/// Represents MinLength attribute information.
+/// </summary>
+public readonly struct MinLengthInfo : IEquatable<MinLengthInfo>
+{
+    public readonly int Length;
+
+    public MinLengthInfo(int length)
+    {
+        Length = length;
+    }
+
+    public bool Equals(MinLengthInfo other)
+    {
+        return Length == other.Length;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is MinLengthInfo other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            int hash = 17;
+            hash = hash * 23 + Length.GetHashCode();
+            return hash;
+        }
+    }
+
+    public static bool operator ==(MinLengthInfo left, MinLengthInfo right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(MinLengthInfo left, MinLengthInfo right)
+    {
+        return !left.Equals(right);
+    }
+}

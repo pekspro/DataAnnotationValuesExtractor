@@ -111,7 +111,7 @@ public class DataAnnotationValuesTest
     [Fact]
     public void AllAnnotationsDirect_VerifyNestedTypeCount()
     {
-        Assert.Equal(7, typeof(AllAnnotationsDirectClass.Annotations).GetNestedTypes().Length);
+        Assert.Equal(8, typeof(AllAnnotationsDirectClass.Annotations).GetNestedTypes().Length);
     }
 
     // ===== StringLength Centralized Approach Tests =====
@@ -322,6 +322,84 @@ public class DataAnnotationValuesTest
         Assert.Equal(2, typeof(DescriptionCentralizedClass2.Annotations).GetNestedTypes().Length);
     }
 
+    // ===== MaxLength Direct Approach Tests =====
+
+    [Fact]
+    public void MaxLengthDirect_VerifyMaxLengthValues()
+    {
+        Assert.Equal(10, MaxLengthDirectClass.Annotations.Tags.MaxLength);
+        Assert.Equal(50, MaxLengthDirectClass.Annotations.Categories.MaxLength);
+        Assert.Equal(100, MaxLengthDirectClass.Annotations.Scores.MaxLength);
+    }
+
+    [Fact]
+    public void MaxLengthDirect_VerifyNestedTypeCount()
+    {
+        Assert.Equal(3, typeof(MaxLengthDirectClass.Annotations).GetNestedTypes().Length);
+    }
+
+    // ===== MinLength Direct Approach Tests =====
+
+    [Fact]
+    public void MinLengthDirect_VerifyMinLengthValues()
+    {
+        Assert.Equal(1, MinLengthDirectClass.Annotations.Tags.MinLength);
+        Assert.Equal(2, MinLengthDirectClass.Annotations.Categories.MinLength);
+        Assert.Equal(5, MinLengthDirectClass.Annotations.Scores.MinLength);
+    }
+
+    [Fact]
+    public void MinLengthDirect_VerifyNestedTypeCount()
+    {
+        Assert.Equal(3, typeof(MinLengthDirectClass.Annotations).GetNestedTypes().Length);
+    }
+
+    // ===== MaxLength Centralized Approach Tests =====
+
+    [Fact]
+    public void MaxLengthCentralized_Class1_VerifyMaxLengthValues()
+    {
+        Assert.Equal(25, MaxLengthCentralizedClass1.Annotations.Items.MaxLength);
+        Assert.Equal(100, MaxLengthCentralizedClass1.Annotations.Data.MaxLength);
+    }
+
+    [Fact]
+    public void MaxLengthCentralized_Class2_VerifyMaxLengthValues()
+    {
+        Assert.Equal(10, MaxLengthCentralizedClass2.Annotations.Names.MaxLength);
+        Assert.Equal(50, MaxLengthCentralizedClass2.Annotations.Values.MaxLength);
+    }
+
+    [Fact]
+    public void MaxLengthCentralized_VerifyNestedTypeCounts()
+    {
+        Assert.Equal(2, typeof(MaxLengthCentralizedClass1.Annotations).GetNestedTypes().Length);
+        Assert.Equal(2, typeof(MaxLengthCentralizedClass2.Annotations).GetNestedTypes().Length);
+    }
+
+    // ===== MinLength Centralized Approach Tests =====
+
+    [Fact]
+    public void MinLengthCentralized_Class1_VerifyMinLengthValues()
+    {
+        Assert.Equal(1, MinLengthCentralizedClass1.Annotations.Items.MinLength);
+        Assert.Equal(5, MinLengthCentralizedClass1.Annotations.Data.MinLength);
+    }
+
+    [Fact]
+    public void MinLengthCentralized_Class2_VerifyMinLengthValues()
+    {
+        Assert.Equal(2, MinLengthCentralizedClass2.Annotations.Names.MinLength);
+        Assert.Equal(3, MinLengthCentralizedClass2.Annotations.Values.MinLength);
+    }
+
+    [Fact]
+    public void MinLengthCentralized_VerifyNestedTypeCounts()
+    {
+        Assert.Equal(2, typeof(MinLengthCentralizedClass1.Annotations).GetNestedTypes().Length);
+        Assert.Equal(2, typeof(MinLengthCentralizedClass2.Annotations).GetNestedTypes().Length);
+    }
+
     // ===== All Annotations With Direct Approach Tests =====
 
     [Fact]
@@ -377,9 +455,16 @@ public class DataAnnotationValuesTest
     }
 
     [Fact]
+    public void AllAnnotationsWithDisplayDirect_VerifyMaxLengthMinLength()
+    {
+        Assert.Equal(20, AllAnnotationsDirectClass.Annotations.Tags.MaxLength);
+        Assert.Equal(1, AllAnnotationsDirectClass.Annotations.Tags.MinLength);
+    }
+
+    [Fact]
     public void AllAnnotationsWithDisplayDirect_VerifyNestedTypeCount()
     {
-        Assert.Equal(7, typeof(AllAnnotationsDirectClass.Annotations).GetNestedTypes().Length);
+        Assert.Equal(8, typeof(AllAnnotationsDirectClass.Annotations).GetNestedTypes().Length);
     }
 
     // ===== All Annotations Centralized Approach Tests =====
@@ -415,6 +500,10 @@ public class DataAnnotationValuesTest
         Assert.Equal("Year", AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Display.ShortName);
         Assert.Equal("Year \"published\" in", AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Display.Description);
         Assert.Equal("This is the year when the product was published", AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Description.Text);
+
+        // MaxLength / MinLength
+        Assert.Equal(20, AllAnnotationsCentralizedClass1.Annotations.Tags.MaxLength);
+        Assert.Equal(1, AllAnnotationsCentralizedClass1.Annotations.Tags.MinLength);
     }
 
     [Fact]
@@ -448,13 +537,16 @@ public class DataAnnotationValuesTest
         Assert.Null(AllAnnotationsCentralizedClass2.Annotations.Rating.Display.ShortName);
         Assert.Equal("Rating from 1 to 5 stars", AllAnnotationsCentralizedClass2.Annotations.Rating.Display.Description);
         Assert.Equal("Rating of the product", AllAnnotationsCentralizedClass2.Annotations.Rating.Description.Text);
+
+        // MaxLength
+        Assert.Equal(10, AllAnnotationsCentralizedClass2.Annotations.Labels.MaxLength);
     }
 
     [Fact]
     public void AllAnnotationsCentralized_VerifyNestedTypeCounts()
     {
-        Assert.Equal(4, typeof(AllAnnotationsCentralizedClass1.Annotations).GetNestedTypes().Length);
-        Assert.Equal(4, typeof(AllAnnotationsCentralizedClass2.Annotations).GetNestedTypes().Length);
+        Assert.Equal(5, typeof(AllAnnotationsCentralizedClass1.Annotations).GetNestedTypes().Length);
+        Assert.Equal(5, typeof(AllAnnotationsCentralizedClass2.Annotations).GetNestedTypes().Length);
     }
 }
 

@@ -2,8 +2,8 @@
 
 A C# source generator that automatically extracts values from data annotation
 attributes and exposes them as strongly-typed constants. Access your
-`StringLength`, `Range`, `Required`, `Display` and `Description` attribute
-values as constants in your classes.
+`StringLength`,`MinLength`, `MaxLength`,  `Range`, `Required`, `Display` and
+`Description`  attribute values as constants in your classes.
 
 ## Why Use This?
 
@@ -25,6 +25,10 @@ public partial class Product
     [Required]
     [Range(0.01, 999999.99)]
     public decimal Price { get; set; }
+
+    [MinLength(1)]
+    [MaxLength(50)]
+    public string[]? Tags { get; set; }
 }
 ```
 
@@ -38,6 +42,10 @@ bool nameRequired = Product.Annotations.Name.IsRequired; // true
 // Price constraints
 double minPrice = Product.Annotations.Price.Minimum; // 0.01
 double maxPrice = Product.Annotations.Price.Maximum; // 999999.99
+
+// Tags length constraints
+int tagsMinLength = Product.Annotations.Tags.MinLength; // 1
+int tagsMaxLength = Product.Annotations.Tags.MaxLength; // 50
 ```
 
 ## Usage Patterns
@@ -51,7 +59,7 @@ Apply `[DataAnnotationValues]` directly to each class you want to generate
 constants for:
 
 ```csharp
-[DataAnnotationValues(StringLength = true, Range = true, Required = true, Display = true, Description = true)]
+[DataAnnotationValues(StringLength = true, MinLength = true, MaxLength = true, Range = true, Required = true, Display = true, Description = true)]
 public partial class Product
 {
     [Display(Name = "Product name")]
@@ -66,6 +74,10 @@ public partial class Product
     [Range(0.01, 999999.99)]
     public decimal Price { get; set; }
 
+    [MinLength(1)]
+    [MaxLength(50)]
+    public string[]? Tags { get; set; }
+
     public string? Sku { get; set; }
 }
 ```
@@ -79,7 +91,7 @@ each class you want to generate constants for. You can use the
 ```csharp
 using Pekspro.DataAnnotationValuesExtractor;
 
-[DataAnnotationValuesConfiguration(StringLength = true, Range = true, Required = true, Display = true, Description = true)]
+[DataAnnotationValuesConfiguration(StringLength = true, Range = true, MinLength = true, MaxLength = true, Required = true, Display = true, Description = true)]
 [DataAnnotationValuesToGenerate(typeof(Customer))]
 [DataAnnotationValuesToGenerate(typeof(Order))]
 [DataAnnotationValuesToGenerate(typeof(Product))]
@@ -122,6 +134,10 @@ bool priceRequired = Product.Annotations.Price.IsRequired;
 string? priceDisplayName = Product.Annotations.Price.Display.Name; // Price name
 string? priceDescription = Product.Annotations.Price.Description.Text; // Price description
 
+// Tags
+int tagsMinLength = Product.Annotations.Tags.MinLength; // 1
+int tagsMaxLength = Product.Annotations.Tags.MaxLength; // 50
+
 // Sku
 bool skuRequired = Product.Annotations.Sku.IsRequired; // false
 ```
@@ -143,6 +159,7 @@ it from your output assembly:
     PrivateAssets="all" ExcludeAssets="runtime" />
 </ItemGroup>
 ```
+
 
 ## Links
 

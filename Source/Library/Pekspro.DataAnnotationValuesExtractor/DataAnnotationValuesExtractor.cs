@@ -79,6 +79,8 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         bool addRequired = false;
         bool addDisplay = false;
         bool addDescription = false;
+        bool addMaxLength = false;
+        bool addMinLength = false;
         var typesBuilder = ImmutableArray.CreateBuilder<ITypeSymbol>();
 
         foreach (AttributeData attributeData in symbol.GetAttributes())
@@ -117,6 +119,18 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                     {
                         addDescription = description;
                     }
+
+                    if (namedArgument.Key == nameof(DataAnnotationValuesOptionsAttribute.MaxLength)
+                        && namedArgument.Value.Value is bool maxLength)
+                    {
+                        addMaxLength = maxLength;
+                    }
+
+                    if (namedArgument.Key == nameof(DataAnnotationValuesOptionsAttribute.MinLength)
+                        && namedArgument.Value.Value is bool minLength)
+                    {
+                        addMinLength = minLength;
+                    }
                 }
             }
             else if (attributeData.AttributeClass?.Name == "DataAnnotationValuesToGenerateAttribute" &&
@@ -141,12 +155,14 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                 name,
                 nameSpace,
                 filePath,
-                ExtractTypeInformation(typesBuilder.ToImmutable(), addStringLength, addRange, addRequired, addDisplay, addDescription),
+                ExtractTypeInformation(typesBuilder.ToImmutable(), addStringLength, addRange, addRequired, addDisplay, addDescription, addMaxLength, addMinLength),
                 addStringLength,
                 addRange,
                 addRequired,
                 addDisplay,
-                addDescription
+                addDescription,
+                addMaxLength,
+                addMinLength
             );
     }
 
@@ -176,6 +192,8 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         bool addRequired = false;
         bool addDisplay = false;
         bool addDescription = false;
+        bool addMaxLength = false;
+        bool addMinLength = false;
 
         // Get configuration from the DataAnnotationValuesAttribute
         foreach (AttributeData attributeData in symbol.GetAttributes())
@@ -214,6 +232,18 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                     {
                         addDescription = description;
                     }
+
+                    if (namedArgument.Key == nameof(DataAnnotationValuesAttribute.MaxLength)
+                        && namedArgument.Value.Value is bool maxLength)
+                    {
+                        addMaxLength = maxLength;
+                    }
+
+                    if (namedArgument.Key == nameof(DataAnnotationValuesAttribute.MinLength)
+                        && namedArgument.Value.Value is bool minLength)
+                    {
+                        addMinLength = minLength;
+                    }
                 }
             }
         }
@@ -226,12 +256,14 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                 name,
                 nameSpace,
                 filePath,
-                ExtractTypeInformation(types, addStringLength, addRange, addRequired, addDisplay, addDescription),
+                ExtractTypeInformation(types, addStringLength, addRange, addRequired, addDisplay, addDescription, addMaxLength, addMinLength),
                 addStringLength,
                 addRange,
                 addRequired,
                 addDisplay,
-                addDescription
+                addDescription,
+                addMaxLength,
+                addMinLength
             );
     }
 
@@ -241,7 +273,9 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         bool includeRange,
         bool includeRequired,
         bool includeDisplay,
-        bool includeDescription)
+        bool includeDescription,
+        bool includeMaxLength,
+        bool includeMinLength)
     {
         var builder = ImmutableArray.CreateBuilder<TypeInformation>();
 
@@ -257,6 +291,8 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                 bool isRequired = false;
                 DisplayInfo? display = null;
                 DescriptionInfo? description = null;
+                MaxLengthInfo? maxLength = null;
+                MinLengthInfo? minLength = null;
 
                 // Check for StringLength attribute
                 if (includeStringLength)
@@ -267,17 +303,17 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
 
                     if (stringLengthAttr != null && stringLengthAttr.ConstructorArguments.Length > 0)
                     {
-                        var maxLength = (int)stringLengthAttr.ConstructorArguments[0].Value!;
+                        var slMaxLength = (int)stringLengthAttr.ConstructorArguments[0].Value!;
 
                         // Check for MinimumLength named argument
                         var minLengthArg = stringLengthAttr.NamedArguments.FirstOrDefault(na => na.Key == "MinimumLength");
-                        int minLength = 0;
+                        int slMinLength = 0;
                         if (minLengthArg.Key != null && minLengthArg.Value.Value is int minValue)
                         {
-                            minLength = minValue;
+                            slMinLength = minValue;
                         }
 
-                        stringLength = new StringLengthInfo(maxLength, minLength);
+                        stringLength = new StringLengthInfo(slMaxLength, slMinLength);
                     }
                 }
 
@@ -381,8 +417,36 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                     }
                 }
 
+                // Check for MaxLength attribute
+                if (includeMaxLength)
+                {
+                    var maxLengthAttr = property.GetAttributes()
+                        .FirstOrDefault(a => a.AttributeClass?.Name == "MaxLengthAttribute" &&
+                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
+
+                    if (maxLengthAttr != null && maxLengthAttr.ConstructorArguments.Length > 0)
+                    {
+                        var lengthValue = (int)maxLengthAttr.ConstructorArguments[0].Value!;
+                        maxLength = new MaxLengthInfo(lengthValue);
+                    }
+                }
+
+                // Check for MinLength attribute
+                if (includeMinLength)
+                {
+                    var minLengthAttr = property.GetAttributes()
+                        .FirstOrDefault(a => a.AttributeClass?.Name == "MinLengthAttribute" &&
+                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
+
+                    if (minLengthAttr != null && minLengthAttr.ConstructorArguments.Length > 0)
+                    {
+                        var lengthValue = (int)minLengthAttr.ConstructorArguments[0].Value!;
+                        minLength = new MinLengthInfo(lengthValue);
+                    }
+                }
+
                 // Only add property if it has any attributes we're tracking
-                if (stringLength.HasValue || range.HasValue || includeRequired || display.HasValue || description.HasValue)
+                if (stringLength.HasValue || range.HasValue || includeRequired || display.HasValue || description.HasValue || maxLength.HasValue || minLength.HasValue)
                 {
                     propertyInfos.Add(new PropertyInformation(
                         property.Name,
@@ -390,7 +454,9 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                         range,
                         isRequired,
                         display,
-                        description));
+                        description,
+                        maxLength,
+                        minLength));
                 }
             }
 

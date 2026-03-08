@@ -6,8 +6,8 @@ status](https://github.com/pekspro/DataAnnotationValuesExtractor/actions/workflo
 
 A C# source generator that automatically extracts values from data annotation
 attributes and exposes them as strongly-typed constants. Access your
-`StringLength`, `Range`, `Required`, `Display` and `Description` attribute
-values as constants in your classes.
+`StringLength`,`MinLength`, `MaxLength`,  `Range`, `Required`, `Display` and
+`Description`  attribute values as constants in your classes.
 
 ## Why Use This?
 
@@ -29,6 +29,10 @@ public partial class Product
     [Required]
     [Range(0.01, 999999.99)]
     public decimal Price { get; set; }
+
+    [MinLength(1)]
+    [MaxLength(50)]
+    public string[]? Tags { get; set; }
 }
 ```
 
@@ -42,6 +46,10 @@ bool nameRequired = Product.Annotations.Name.IsRequired; // true
 // Price constraints
 double minPrice = Product.Annotations.Price.Minimum; // 0.01
 double maxPrice = Product.Annotations.Price.Maximum; // 999999.99
+
+// Tags length constraints
+int tagsMinLength = Product.Annotations.Tags.MinLength; // 1
+int tagsMaxLength = Product.Annotations.Tags.MaxLength; // 50
 ```
 
 ## Usage Patterns
@@ -55,7 +63,7 @@ Apply `[DataAnnotationValues]` directly to each class you want to generate
 constants for:
 
 ```csharp
-[DataAnnotationValues(StringLength = true, Range = true, Required = true, Display = true, Description = true)]
+[DataAnnotationValues(StringLength = true, MinLength = true, MaxLength = true, Range = true, Required = true, Display = true, Description = true)]
 public partial class Product
 {
     [Display(Name = "Product name")]
@@ -70,6 +78,10 @@ public partial class Product
     [Range(0.01, 999999.99)]
     public decimal Price { get; set; }
 
+    [MinLength(1)]
+    [MaxLength(50)]
+    public string[]? Tags { get; set; }
+
     public string? Sku { get; set; }
 }
 ```
@@ -83,7 +95,7 @@ each class you want to generate constants for. You can use the
 ```csharp
 using Pekspro.DataAnnotationValuesExtractor;
 
-[DataAnnotationValuesConfiguration(StringLength = true, Range = true, Required = true, Display = true, Description = true)]
+[DataAnnotationValuesConfiguration(StringLength = true, Range = true, MinLength = true, MaxLength = true, Required = true, Display = true, Description = true)]
 [DataAnnotationValuesToGenerate(typeof(Customer))]
 [DataAnnotationValuesToGenerate(typeof(Order))]
 [DataAnnotationValuesToGenerate(typeof(Product))]
@@ -126,6 +138,10 @@ bool priceRequired = Product.Annotations.Price.IsRequired;
 string? priceDisplayName = Product.Annotations.Price.Display.Name; // Price name
 string? priceDescription = Product.Annotations.Price.Description.Text; // Price description
 
+// Tags
+int tagsMinLength = Product.Annotations.Tags.MinLength; // 1
+int tagsMaxLength = Product.Annotations.Tags.MaxLength; // 50
+
 // Sku
 bool skuRequired = Product.Annotations.Sku.IsRequired; // false
 ```
@@ -163,6 +179,8 @@ the following properties to control which constants are generated:
 | Property       | Default | Generated Constants                                              | Description                                     |
 | -------------- | ------- | ---------------------------------------------------------------- | ----------------------------------------------- |
 | `StringLength` | `true`  | `MaximumLength`, `MinimumLength`                                 | Extract values from `[StringLength]` attribute. |
+| `MinLength`    | `false` | `MinLength`                                                      | Extract value from `[MinLength]` attribute.      |
+| `MaxLength`    | `false` | `MaxLength`                                                      | Extract value from `[MaxLength]` attribute.      |
 | `Range`        | `true`  | `Minimum`, `Maximum`, `MinimumIsExclusive`, `MaximumIsExclusive` | Extract values from `[Range]` attribute.        |
 | `Required`     | `false` | `IsRequired`                                                     | Detect presence of `[Required]` attribute.      |
 | `Display`      | `false` | `Name`, `Description`, `ShortName`                               | Extract values from `[Display]` attribute.       |
@@ -198,7 +216,7 @@ directory.
 Given this input:
 
 ```csharp
-[DataAnnotationValues(StringLength = true, Range = true, Required = true, Display = true, Description = true)]
+[DataAnnotationValues(StringLength = true, MinLength = true, MaxLength = true, Range = true, Required = true, Display = true, Description = true)]
 public partial class Player
 {
     [Display(Name = "Player name", ShortName ="Name", Description = "Name of player")]
@@ -212,6 +230,10 @@ public partial class Player
 
     [Range(1, 100)]
     public int Score { get; set; }
+
+    [MinLength(1)]
+    [MaxLength(10)]
+    public string[]? Tags { get; set; }
 }
 ```
 
@@ -326,6 +348,27 @@ public partial class Player
 
             /// <summary>
             /// Indicates whether Score is required.
+            /// </summary>
+            public const bool IsRequired = false;
+        }
+
+        /// <summary>
+        /// Data annotation values for Tags.
+        /// </summary>
+        public static class Tags
+        {
+            /// <summary>
+            /// Minimum length for Tags.
+            /// </summary>
+            public const int MinLength = 1;
+
+            /// <summary>
+            /// Maximum length for Tags.
+            /// </summary>
+            public const int MaxLength = 10;
+
+            /// <summary>
+            /// Indicates whether Tags is required.
             /// </summary>
             public const bool IsRequired = false;
         }

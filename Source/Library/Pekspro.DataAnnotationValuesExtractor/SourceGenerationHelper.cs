@@ -112,6 +112,48 @@ namespace ").Append(currentNamespace).Append(@"
                 public const int MinimumLength = ").Append(stringLength.MinimumLength).Append(";");
                     }
 
+                    // Add MinLength values
+                    if (property.MinLength.HasValue)
+                    {
+                        if (!firstValue)
+                        {
+                            propertySb.AppendLine();
+                        }
+                        else
+                        {
+                            firstValue = false;
+                        }
+
+                        var minLength = property.MinLength.Value;
+
+                        propertySb.Append(@"
+                /// <summary>
+                /// Minimum length for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public const int MinLength = ").Append(minLength.Length).Append(";");
+                    }
+
+                    // Add MaxLength values
+                    if (property.MaxLength.HasValue)
+                    {
+                        if (!firstValue)
+                        {
+                            propertySb.AppendLine();
+                        }
+                        else
+                        {
+                            firstValue = false;
+                        }
+
+                        var maxLength = property.MaxLength.Value;
+
+                        propertySb.Append(@"
+                /// <summary>
+                /// Maximum length for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public const int MaxLength = ").Append(maxLength.Length).Append(";");
+                    }
+
                     // Add Range values
                     if (property.Range.HasValue)
                     {

@@ -16,6 +16,8 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
     public readonly bool AddRequired;
     public readonly bool AddDisplay;
     public readonly bool AddDescription;
+    public readonly bool AddMaxLength;
+    public readonly bool AddMinLength;
 
     public DataAnnotationValuesDetailedOptions(
         string name,
@@ -26,7 +28,9 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
         bool addRange,
         bool addRequired,
         bool addDisplay = false,
-        bool addDescription = false
+        bool addDescription = false,
+        bool addMaxLength = false,
+        bool addMinLength = false
         )
     {
         Name = name;
@@ -48,6 +52,8 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
         AddRequired = addRequired;
         AddDisplay = addDisplay;
         AddDescription = addDescription;
+        AddMaxLength = addMaxLength;
+        AddMinLength = addMinLength;
     }
 
     public bool Equals(DataAnnotationValuesDetailedOptions other)
@@ -61,6 +67,8 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
             && AddRequired == other.AddRequired
             && AddDisplay == other.AddDisplay
             && AddDescription == other.AddDescription
+            && AddMaxLength == other.AddMaxLength
+            && AddMinLength == other.AddMinLength
             && TypesEqual(Types, other.Types);
     }
 
@@ -111,6 +119,8 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
             hash = hash * 23 + AddRequired.GetHashCode();
             hash = hash * 23 + AddDisplay.GetHashCode();
             hash = hash * 23 + AddDescription.GetHashCode();
+            hash = hash * 23 + AddMaxLength.GetHashCode();
+            hash = hash * 23 + AddMinLength.GetHashCode();
             
             if (!Types.IsDefault)
             {

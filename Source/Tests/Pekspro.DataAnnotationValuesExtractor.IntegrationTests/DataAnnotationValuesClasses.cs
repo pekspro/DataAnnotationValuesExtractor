@@ -182,7 +182,7 @@ partial class DisplayCentralizedValues
 
 // ===== All Annotations - Direct Approach =====
 
-[DataAnnotationValues(StringLength = true, Range = true, Required = true, Display = true)]
+[DataAnnotationValues(StringLength = true, MinLength = true, MaxLength = true, Range = true, Required = true, Display = true)]
 public partial class AllAnnotationsDirectClass
 {
     [Required]
@@ -211,6 +211,10 @@ public partial class AllAnnotationsDirectClass
     [Required]
     [Display(Name = "In Stock", ShortName = null, Description = null)]
     public bool InStock { get; set; }
+
+    [MaxLength(20)]
+    [MinLength(1)]
+    public string[] Tags { get; set; } = [];
 }
 
 // ===== Description Tests - Direct Approach =====
@@ -257,6 +261,91 @@ partial class DescriptionCentralizedValues
 }
 
 
+// ===== MaxLength Tests - Direct Approach =====
+
+[DataAnnotationValues(MaxLength = true)]
+public partial class MaxLengthDirectClass
+{
+    [MaxLength(10)]
+    public string[] Tags { get; set; } = [];
+
+    [MaxLength(50)]
+    public string[] Categories { get; set; } = [];
+
+    [MaxLength(100)]
+    public int[] Scores { get; set; } = [];
+}
+
+// ===== MinLength Tests - Direct Approach =====
+
+[DataAnnotationValues(MinLength = true)]
+public partial class MinLengthDirectClass
+{
+    [MinLength(1)]
+    public string[] Tags { get; set; } = [];
+
+    [MinLength(2)]
+    public string[] Categories { get; set; } = [];
+
+    [MinLength(5)]
+    public int[] Scores { get; set; } = [];
+}
+
+// ===== MaxLength Tests - Centralized Approach =====
+
+public partial class MaxLengthCentralizedClass1
+{
+    [MaxLength(25)]
+    public string[] Items { get; set; } = [];
+
+    [MaxLength(100)]
+    public byte[] Data { get; set; } = [];
+}
+
+public partial class MaxLengthCentralizedClass2
+{
+    [MaxLength(10)]
+    public string[] Names { get; set; } = [];
+
+    [MaxLength(50)]
+    public int[] Values { get; set; } = [];
+}
+
+[DataAnnotationValuesOptions(MaxLength = true)]
+[DataAnnotationValuesToGenerate(typeof(MaxLengthCentralizedClass1))]
+[DataAnnotationValuesToGenerate(typeof(MaxLengthCentralizedClass2))]
+partial class MaxLengthCentralizedValues
+{
+}
+
+// ===== MinLength Tests - Centralized Approach =====
+
+public partial class MinLengthCentralizedClass1
+{
+    [MinLength(1)]
+    public string[] Items { get; set; } = [];
+
+    [MinLength(5)]
+    public byte[] Data { get; set; } = [];
+}
+
+public partial class MinLengthCentralizedClass2
+{
+    [MinLength(2)]
+    public string[] Names { get; set; } = [];
+
+    [MinLength(3)]
+    public int[] Values { get; set; } = [];
+}
+
+[DataAnnotationValuesOptions(MinLength = true)]
+[DataAnnotationValuesToGenerate(typeof(MinLengthCentralizedClass1))]
+[DataAnnotationValuesToGenerate(typeof(MinLengthCentralizedClass2))]
+partial class MinLengthCentralizedValues
+{
+}
+
+
 // ===== All Annotations - Centralized Approach =====
 
 public partial class AllAnnotationsCentralizedClass1
@@ -278,6 +367,10 @@ public partial class AllAnnotationsCentralizedClass1
     [Display(Name = "Publication Year", ShortName = "Year", Description = "Year \"published\" in")]
     [Description("This is the year when the product was published")]
     public int PublicationYear { get; set; }
+
+    [MaxLength(20)]
+    [MinLength(1)]
+    public string[] Tags { get; set; } = [];
 }
 
 public partial class AllAnnotationsCentralizedClass2
@@ -300,10 +393,13 @@ public partial class AllAnnotationsCentralizedClass2
     [Display(Name = "Rating", ShortName = null, Description = "Rating from 1 to 5 stars")]
     [Description("Rating of the product")]
     public int Rating { get; set; }
+
+    [MaxLength(10)]
+    public string[] Labels { get; set; } = [];
 }
 
 
-[DataAnnotationValuesOptions(StringLength = true, Range = true, Required = true, Display = true, Description = true)]
+[DataAnnotationValuesOptions(StringLength = true, MinLength = true, MaxLength = true, Range = true, Required = true, Display = true, Description = true)]
 [DataAnnotationValuesToGenerate(typeof(AllAnnotationsCentralizedClass1))]
 [DataAnnotationValuesToGenerate(typeof(AllAnnotationsCentralizedClass2))]
 partial class AllAnnotationsCentralizedValues
