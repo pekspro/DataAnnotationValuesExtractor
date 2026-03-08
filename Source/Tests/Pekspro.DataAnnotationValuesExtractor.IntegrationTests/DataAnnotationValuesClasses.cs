@@ -1,5 +1,5 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using Pekspro.DataAnnotationValuesExtractor;
 
 namespace Pekspro.DataAnnotationValuesExtractor.IntegrationTests;
 
@@ -213,6 +213,49 @@ public partial class AllAnnotationsDirectClass
     public bool InStock { get; set; }
 }
 
+// ===== Description Tests - Direct Approach =====
+
+[DataAnnotationValues(Description = true)]
+public partial class DescriptionDirectClass
+{
+    [System.ComponentModel.Description("The user's full name")]
+    public string FullName { get; set; } = string.Empty;
+
+    [System.ComponentModel.Description("The user's email with \"quotes\"")]
+    public string Email { get; set; } = string.Empty;
+
+    public string Phone { get; set; } = string.Empty;
+}
+
+// ===== Description Tests - Centralized Approach =====
+
+public partial class DescriptionCentralizedClass1
+{
+    [System.ComponentModel.Description("User's first name")]
+    public string FirstName { get; set; } = string.Empty;
+
+    [System.ComponentModel.Description("User's last name with \"special\" characters")]
+    public string LastName { get; set; } = string.Empty;
+}
+
+public partial class DescriptionCentralizedClass2
+{
+    [System.ComponentModel.Description("The address line")]
+    public string Address { get; set; } = string.Empty;
+
+    [System.ComponentModel.Description("The city name")]
+    public string City { get; set; } = string.Empty;
+
+    public string PostalCode { get; set; } = string.Empty;
+}
+
+[DataAnnotationValuesOptions(Description = true)]
+[DataAnnotationValuesToGenerate(typeof(DescriptionCentralizedClass1))]
+[DataAnnotationValuesToGenerate(typeof(DescriptionCentralizedClass2))]
+partial class DescriptionCentralizedValues
+{
+}
+
 
 // ===== All Annotations - Centralized Approach =====
 
@@ -228,11 +271,13 @@ public partial class AllAnnotationsCentralizedClass1
     [Required]
     [StringLength(100)]
     [Display(Name = "Author Name", ShortName = "Author", Description = "Name of the author")]
+    [Description("This is the mame of the author")]
     public string AuthorName { get; set; } = string.Empty;
 
     [Range(1900, 2100)]
     [Display(Name = "Publication Year", ShortName = "Year", Description = "Year \"published\" in")]
-public int PublicationYear { get; set; }
+    [Description("This is the year when the product was published")]
+    public int PublicationYear { get; set; }
 }
 
 public partial class AllAnnotationsCentralizedClass2
@@ -248,21 +293,22 @@ public partial class AllAnnotationsCentralizedClass2
     [Required]
     [StringLength(200)]
     [Display(Name = "Review Text", ShortName = "Review", Description = null)]
+    [Description("Name of the product")]
     public string ReviewText { get; set; } = string.Empty;
 
     [Range(1, 5)]
     [Display(Name = "Rating", ShortName = null, Description = "Rating from 1 to 5 stars")]
+    [Description("Rating of the product")]
     public int Rating { get; set; }
 }
 
 
-[DataAnnotationValuesOptions(StringLength = true, Range = true, Required = true, Display = true)]
+[DataAnnotationValuesOptions(StringLength = true, Range = true, Required = true, Display = true, Description = true)]
 [DataAnnotationValuesToGenerate(typeof(AllAnnotationsCentralizedClass1))]
 [DataAnnotationValuesToGenerate(typeof(AllAnnotationsCentralizedClass2))]
 partial class AllAnnotationsCentralizedValues
 {
 }
-
 
 #pragma warning restore CS1591
 

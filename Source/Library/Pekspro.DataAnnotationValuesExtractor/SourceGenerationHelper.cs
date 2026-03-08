@@ -186,7 +186,7 @@ namespace ").Append(currentNamespace).Append(@"
                         }
 
                         var display = property.Display.Value;
-                        
+
                         propertySb.Append(@"
                 /// <summary>
                 /// Display attribute values for ").Append(property.PropertyName).Append(@".
@@ -207,6 +207,33 @@ namespace ").Append(currentNamespace).Append(@"
                     /// Description for ").Append(property.PropertyName).Append(@".
                     /// </summary>
                     public const string? Description = ").Append(display.Description != null ? EscapeString(display.Description) : "null").Append(@";
+                }");
+                    }
+
+                    // Add Description values
+                    if (options.AddDescription && property.Description.HasValue)
+                    {
+                        if (!firstValue)
+                        {
+                            propertySb.AppendLine();
+                        }
+                        else
+                        {
+                            firstValue = false;
+                        }
+
+                        var description = property.Description.Value;
+
+                        propertySb.Append(@"
+                /// <summary>
+                /// Description attribute values for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public static class Description
+                {
+                    /// <summary>
+                    /// Description text for ").Append(property.PropertyName).Append(@".
+                    /// </summary>
+                    public const string? Text = ").Append(description.Text != null ? EscapeString(description.Text) : "null").Append(@";
                 }");
                     }
 

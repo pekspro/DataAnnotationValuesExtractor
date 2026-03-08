@@ -32,6 +32,12 @@ namespace Pekspro.DataAnnotationValuesExtractor
         /// Is set to false by default.
         /// </summary>
         public bool Display { get; set; }
+
+        /// <summary>
+        /// Whether Description attribute values should be included.
+        /// Is set to false by default.
+        /// </summary>
+        public bool Description { get; set; }
     }
 }
 

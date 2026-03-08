@@ -282,6 +282,46 @@ public class DataAnnotationValuesTest
     }
 
 
+    // ===== Description Direct Approach Tests =====
+
+    [Fact]
+    public void DescriptionDirect_VerifyDescriptionText()
+    {
+        Assert.Equal("The user's full name", DescriptionDirectClass.Annotations.FullName.Description.Text);
+        Assert.Equal("The user's email with \"quotes\"", DescriptionDirectClass.Annotations.Email.Description.Text);
+    }
+
+    [Fact]
+    public void DescriptionDirect_VerifyNestedTypeCount()
+    {
+        // Only 2 nested types: FullName and Email (Phone has no annotations)
+        Assert.Equal(2, typeof(DescriptionDirectClass.Annotations).GetNestedTypes().Length);
+    }
+
+    // ===== Description Centralized Approach Tests =====
+
+    [Fact]
+    public void DescriptionCentralized_Class1_VerifyDescriptionText()
+    {
+        Assert.Equal("User's first name", DescriptionCentralizedClass1.Annotations.FirstName.Description.Text);
+        Assert.Equal("User's last name with \"special\" characters", DescriptionCentralizedClass1.Annotations.LastName.Description.Text);
+    }
+
+    [Fact]
+    public void DescriptionCentralized_Class2_VerifyDescriptionText()
+    {
+        Assert.Equal("The address line", DescriptionCentralizedClass2.Annotations.Address.Description.Text);
+        Assert.Equal("The city name", DescriptionCentralizedClass2.Annotations.City.Description.Text);
+    }
+
+    [Fact]
+    public void DescriptionCentralized_VerifyNestedTypeCounts()
+    {
+        Assert.Equal(2, typeof(DescriptionCentralizedClass1.Annotations).GetNestedTypes().Length);
+        // Only 2 nested types: Address and City (PostalCode has no Description)
+        Assert.Equal(2, typeof(DescriptionCentralizedClass2.Annotations).GetNestedTypes().Length);
+    }
+
     // ===== All Annotations With Direct Approach Tests =====
 
     [Fact]
@@ -369,10 +409,12 @@ public class DataAnnotationValuesTest
         Assert.Equal("Author Name", AllAnnotationsCentralizedClass1.Annotations.AuthorName.Display.Name);
         Assert.Equal("Author", AllAnnotationsCentralizedClass1.Annotations.AuthorName.Display.ShortName);
         Assert.Equal("Name of the author", AllAnnotationsCentralizedClass1.Annotations.AuthorName.Display.Description);
+        Assert.Equal("This is the mame of the author", AllAnnotationsCentralizedClass1.Annotations.AuthorName.Description.Text);
 
         Assert.Equal("Publication Year", AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Display.Name);
         Assert.Equal("Year", AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Display.ShortName);
         Assert.Equal("Year \"published\" in", AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Display.Description);
+        Assert.Equal("This is the year when the product was published", AllAnnotationsCentralizedClass1.Annotations.PublicationYear.Description.Text);
     }
 
     [Fact]
@@ -400,10 +442,12 @@ public class DataAnnotationValuesTest
         Assert.Equal("Review Text", AllAnnotationsCentralizedClass2.Annotations.ReviewText.Display.Name);
         Assert.Equal("Review", AllAnnotationsCentralizedClass2.Annotations.ReviewText.Display.ShortName);
         Assert.Null(AllAnnotationsCentralizedClass2.Annotations.ReviewText.Display.Description);
+        Assert.Equal("Name of the product", AllAnnotationsCentralizedClass2.Annotations.ReviewText.Description.Text);
 
         Assert.Equal("Rating", AllAnnotationsCentralizedClass2.Annotations.Rating.Display.Name);
         Assert.Null(AllAnnotationsCentralizedClass2.Annotations.Rating.Display.ShortName);
         Assert.Equal("Rating from 1 to 5 stars", AllAnnotationsCentralizedClass2.Annotations.Rating.Display.Description);
+        Assert.Equal("Rating of the product", AllAnnotationsCentralizedClass2.Annotations.Rating.Description.Text);
     }
 
     [Fact]
@@ -412,9 +456,6 @@ public class DataAnnotationValuesTest
         Assert.Equal(4, typeof(AllAnnotationsCentralizedClass1.Annotations).GetNestedTypes().Length);
         Assert.Equal(4, typeof(AllAnnotationsCentralizedClass2.Annotations).GetNestedTypes().Length);
     }
-
-
-
 }
 
 

@@ -15,7 +15,8 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
     public readonly bool AddRange;
     public readonly bool AddRequired;
     public readonly bool AddDisplay;
-    
+    public readonly bool AddDescription;
+
     public DataAnnotationValuesDetailedOptions(
         string name,
         string? ns,
@@ -24,14 +25,15 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
         bool addStringLength,
         bool addRange,
         bool addRequired,
-        bool addDisplay = false
+        bool addDisplay = false,
+        bool addDescription = false
         )
     {
         Name = name;
         Namespace = ns;
         FullFileName = fullFileName;
         Types = types;
-        
+
         if (fullFileName != string.Empty)
         {
             FilePath = Path.GetDirectoryName(fullFileName);
@@ -45,6 +47,7 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
         AddRange = addRange;
         AddRequired = addRequired;
         AddDisplay = addDisplay;
+        AddDescription = addDescription;
     }
 
     public bool Equals(DataAnnotationValuesDetailedOptions other)
@@ -57,6 +60,7 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
             && AddRange == other.AddRange
             && AddRequired == other.AddRequired
             && AddDisplay == other.AddDisplay
+            && AddDescription == other.AddDescription
             && TypesEqual(Types, other.Types);
     }
 
@@ -106,6 +110,7 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
             hash = hash * 23 + AddRange.GetHashCode();
             hash = hash * 23 + AddRequired.GetHashCode();
             hash = hash * 23 + AddDisplay.GetHashCode();
+            hash = hash * 23 + AddDescription.GetHashCode();
             
             if (!Types.IsDefault)
             {

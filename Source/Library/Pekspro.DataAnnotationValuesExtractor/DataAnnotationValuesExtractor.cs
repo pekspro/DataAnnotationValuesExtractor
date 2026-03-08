@@ -78,6 +78,7 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         bool addRange = true;
         bool addRequired = false;
         bool addDisplay = false;
+        bool addDescription = false;
         var typesBuilder = ImmutableArray.CreateBuilder<ITypeSymbol>();
 
         foreach (AttributeData attributeData in symbol.GetAttributes())
@@ -110,6 +111,12 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                     {
                         addDisplay = display;
                     }
+
+                    if (namedArgument.Key == nameof(DataAnnotationValuesOptionsAttribute.Description)
+                        && namedArgument.Value.Value is bool description)
+                    {
+                        addDescription = description;
+                    }
                 }
             }
             else if (attributeData.AttributeClass?.Name == "DataAnnotationValuesToGenerateAttribute" &&
@@ -134,11 +141,12 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                 name,
                 nameSpace,
                 filePath,
-                ExtractTypeInformation(typesBuilder.ToImmutable(), addStringLength, addRange, addRequired, addDisplay),
+                ExtractTypeInformation(typesBuilder.ToImmutable(), addStringLength, addRange, addRequired, addDisplay, addDescription),
                 addStringLength,
                 addRange,
                 addRequired,
-                addDisplay
+                addDisplay,
+                addDescription
             );
     }
 
@@ -167,6 +175,7 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         bool addRange = true;
         bool addRequired = false;
         bool addDisplay = false;
+        bool addDescription = false;
 
         // Get configuration from the DataAnnotationValuesAttribute
         foreach (AttributeData attributeData in symbol.GetAttributes())
@@ -199,6 +208,12 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                     {
                         addDisplay = display;
                     }
+
+                    if (namedArgument.Key == nameof(DataAnnotationValuesAttribute.Description)
+                        && namedArgument.Value.Value is bool description)
+                    {
+                        addDescription = description;
+                    }
                 }
             }
         }
@@ -211,11 +226,12 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                 name,
                 nameSpace,
                 filePath,
-                ExtractTypeInformation(types, addStringLength, addRange, addRequired, addDisplay),
+                ExtractTypeInformation(types, addStringLength, addRange, addRequired, addDisplay, addDescription),
                 addStringLength,
                 addRange,
                 addRequired,
-                addDisplay
+                addDisplay,
+                addDescription
             );
     }
 
@@ -224,7 +240,8 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         bool includeStringLength,
         bool includeRange,
         bool includeRequired,
-        bool includeDisplay)
+        bool includeDisplay,
+        bool includeDescription)
     {
         var builder = ImmutableArray.CreateBuilder<TypeInformation>();
 
@@ -239,6 +256,7 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                 RangeInfo? range = null;
                 bool isRequired = false;
                 DisplayInfo? display = null;
+                DescriptionInfo? description = null;
 
                 // Check for StringLength attribute
                 if (includeStringLength)
@@ -318,7 +336,7 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                     {
                         string? name = null;
                         string? shortName = null;
-                        string? description = null;
+                        string? displayDescription = null;
 
                         // Extract named arguments
                         foreach (var namedArg in displayAttr.NamedArguments)
@@ -333,27 +351,46 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
                             }
                             else if (namedArg.Key == "Description" && namedArg.Value.Value is string descriptionValue)
                             {
-                                description = descriptionValue;
+                                displayDescription = descriptionValue;
                             }
                         }
 
                         // Only create DisplayInfo if at least one value is present
-                        if (name != null || shortName != null || description != null)
+                        if (name != null || shortName != null || displayDescription != null)
                         {
-                            display = new DisplayInfo(name, shortName, description);
+                            display = new DisplayInfo(name, shortName, displayDescription);
+                        }
+                    }
+                }
+
+                // Check for Description attribute
+                if (includeDescription)
+                {
+                    var descriptionAttr = property.GetAttributes()
+                        .FirstOrDefault(a => a.AttributeClass?.Name == "DescriptionAttribute" &&
+                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel");
+
+                    if (descriptionAttr != null && descriptionAttr.ConstructorArguments.Length > 0)
+                    {
+                        string? text = descriptionAttr.ConstructorArguments[0].Value as string;
+
+                        if (text != null)
+                        {
+                            description = new DescriptionInfo(text);
                         }
                     }
                 }
 
                 // Only add property if it has any attributes we're tracking
-                if (stringLength.HasValue || range.HasValue || includeRequired || display.HasValue)
+                if (stringLength.HasValue || range.HasValue || includeRequired || display.HasValue || description.HasValue)
                 {
                     propertyInfos.Add(new PropertyInformation(
                         property.Name,
                         stringLength,
                         range,
                         isRequired,
-                        display));
+                        display,
+                        description));
                 }
             }
 

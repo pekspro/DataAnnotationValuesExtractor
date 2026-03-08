@@ -2,8 +2,8 @@
 
 A C# source generator that automatically extracts values from data annotation
 attributes and exposes them as strongly-typed constants. Access your
-`StringLength`, `Range`, `Required` and `Display` attribute values as constants
-in your classes.
+`StringLength`, `Range`, `Required`, `Display` and `Description` attribute
+values as constants in your classes.
 
 ## Why Use This?
 
@@ -51,15 +51,17 @@ Apply `[DataAnnotationValues]` directly to each class you want to generate
 constants for:
 
 ```csharp
-[DataAnnotationValues(StringLength = true, Range = true, Required = true, Display = true)]
+[DataAnnotationValues(StringLength = true, Range = true, Required = true, Display = true, Description = true)]
 public partial class Product
 {
     [Display(Name = "Product name")]
+    [Description("Name of the product")]
     [Required]
     [StringLength(100)]
     public string? Name { get; set; }
 
     [Display(Name = "Product price")]
+    [Description("Price of the product")]
     [Required]
     [Range(0.01, 999999.99)]
     public decimal Price { get; set; }
@@ -77,7 +79,7 @@ each class you want to generate constants for. You can use the
 ```csharp
 using Pekspro.DataAnnotationValuesExtractor;
 
-[DataAnnotationValuesConfiguration(StringLength = true, Range = true, Required = true, Display = true)]
+[DataAnnotationValuesConfiguration(StringLength = true, Range = true, Required = true, Display = true, Description = true)]
 [DataAnnotationValuesToGenerate(typeof(Customer))]
 [DataAnnotationValuesToGenerate(typeof(Order))]
 [DataAnnotationValuesToGenerate(typeof(Product))]
@@ -89,7 +91,16 @@ partial class ValidationConstants
 Your model classes remain unchanged.
 
 This approach is especially useful when working with auto-generated models, such
-as those created by Entity Framework scaffolding.
+as those created by Entity Framework scaffolding. If you do, and you have all
+your models in a folder, you can use this PowerShell script to generate the
+attributes for all models in that folder:
+
+```powershell
+Get-ChildItem -Filter '*.cs' |
+    Where-Object { -not ($_.BaseName -match '(?i)context') } |
+    ForEach-Object { "[DataAnnotationValuesToGenerate(typeof($($_.BaseName)))]" } |
+    Set-Clipboard
+```
 
 ### Use the generated constants
 
@@ -102,12 +113,14 @@ int maxNameLength = Product.Annotations.Name.MaximumLength; // 100
 int minNameLength = Product.Annotations.Name.MinimumLength; // 0
 bool nameRequired = Product.Annotations.Name.IsRequired; // true
 string? nameDisplayName = Product.Annotations.Name.Display.Name; // Product name
+string? nameDescription = Product.Annotations.Name.Description.Text; // Name description
 
 // Price
 double minPrice = Product.Annotations.Price.Minimum; // 0.01
 double maxPrice = Product.Annotations.Price.Maximum; // 999999.99
 bool priceRequired = Product.Annotations.Price.IsRequired;
 string? priceDisplayName = Product.Annotations.Price.Display.Name; // Price name
+string? priceDescription = Product.Annotations.Price.Description.Text; // Price description
 
 // Sku
 bool skuRequired = Product.Annotations.Sku.IsRequired; // false
