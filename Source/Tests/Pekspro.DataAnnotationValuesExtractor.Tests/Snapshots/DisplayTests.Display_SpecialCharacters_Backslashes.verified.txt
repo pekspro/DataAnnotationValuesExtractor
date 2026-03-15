@@ -8,6 +8,7 @@
 //---------------------------------------------------------------------------------------
 
 #nullable enable
+#pragma warning disable CS0108 // Disable warning about hiding members in the original class, as this is intentional for the generated Annotations class
 
     /// <summary>
     /// Data annotation values for MyClass.
@@ -33,7 +34,7 @@
                     /// <summary>
                     /// Display name for FilePath.
                     /// </summary>
-                    public const string? Name = "Path: C:\\Users\\Admin";
+                    public const string Name = "Path: C:\\Users\\Admin";
 
                     /// <summary>
                     /// Short display name for FilePath.
@@ -43,7 +44,7 @@
                     /// <summary>
                     /// Description for FilePath.
                     /// </summary>
-                    public const string? Description = "Use \\ for backslash";
+                    public const string Description = "Use \\ for backslash";
                 }
             }
         }

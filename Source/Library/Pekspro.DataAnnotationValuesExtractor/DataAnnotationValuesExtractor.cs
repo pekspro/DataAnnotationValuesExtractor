@@ -79,8 +79,8 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         bool addRequired = false;
         bool addDisplay = false;
         bool addDescription = false;
-        bool addMaxLength = false;
-        bool addMinLength = false;
+        bool addMaxLength = true;
+        bool addMinLength = true;
         var typesBuilder = ImmutableArray.CreateBuilder<ITypeSymbol>();
 
         foreach (AttributeData attributeData in symbol.GetAttributes())
@@ -192,8 +192,8 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
         bool addRequired = false;
         bool addDisplay = false;
         bool addDescription = false;
-        bool addMaxLength = false;
-        bool addMinLength = false;
+        bool addMaxLength = true;
+        bool addMinLength = true;
 
         // Get configuration from the DataAnnotationValuesAttribute
         foreach (AttributeData attributeData in symbol.GetAttributes())
@@ -286,193 +286,207 @@ public class DataAnnotationValuesExtractor : IIncrementalGenerator
 
             foreach (var property in properties)
             {
-                StringLengthInfo? stringLength = null;
-                RangeInfo? range = null;
-                bool isRequired = false;
-                DisplayInfo? display = null;
-                DescriptionInfo? description = null;
-                MaxLengthInfo? maxLength = null;
-                MinLengthInfo? minLength = null;
-
-                // Check for StringLength attribute
-                if (includeStringLength)
+                var propInfo = ExtractMemberAnnotations(property, includeStringLength, includeRange, includeRequired, includeDisplay, includeDescription, includeMaxLength, includeMinLength);
+                if (propInfo.HasValue)
                 {
-                    var stringLengthAttr = property.GetAttributes()
-                        .FirstOrDefault(a => a.AttributeClass?.Name == "StringLengthAttribute" &&
-                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
-
-                    if (stringLengthAttr != null && stringLengthAttr.ConstructorArguments.Length > 0)
-                    {
-                        var slMaxLength = (int)stringLengthAttr.ConstructorArguments[0].Value!;
-
-                        // Check for MinimumLength named argument
-                        var minLengthArg = stringLengthAttr.NamedArguments.FirstOrDefault(na => na.Key == "MinimumLength");
-                        int slMinLength = 0;
-                        if (minLengthArg.Key != null && minLengthArg.Value.Value is int minValue)
-                        {
-                            slMinLength = minValue;
-                        }
-
-                        stringLength = new StringLengthInfo(slMaxLength, slMinLength);
-                    }
-                }
-
-                // Check for Range attribute
-                if (includeRange)
-                {
-                    var rangeAttr = property.GetAttributes()
-                        .FirstOrDefault(a => a.AttributeClass?.Name == "RangeAttribute" &&
-                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
-
-                    if (rangeAttr != null && rangeAttr.ConstructorArguments.Length >= 2)
-                    {
-                        var minimumValue = rangeAttr.ConstructorArguments[0].Value;
-                        var maximumValue = rangeAttr.ConstructorArguments[1].Value;
-                        var minimum = FormatValue(minimumValue);
-                        var maximum = FormatValue(maximumValue);
-                        var typeName = rangeAttr.ConstructorArguments[0].Type?.ToDisplayString() ?? "int";
-
-                        // Check for MinimumIsExclusive and MaximumIsExclusive named arguments
-                        var minIsExclusiveArg = rangeAttr.NamedArguments.FirstOrDefault(na => na.Key == "MinimumIsExclusive");
-                        bool minIsExclusive = false;
-                        if (minIsExclusiveArg.Key != null && minIsExclusiveArg.Value.Value is bool minExclValue)
-                        {
-                            minIsExclusive = minExclValue;
-                        }
-
-                        var maxIsExclusiveArg = rangeAttr.NamedArguments.FirstOrDefault(na => na.Key == "MaximumIsExclusive");
-                        bool maxIsExclusive = false;
-                        if (maxIsExclusiveArg.Key != null && maxIsExclusiveArg.Value.Value is bool maxExclValue)
-                        {
-                            maxIsExclusive = maxExclValue;
-                        }
-
-                        range = new RangeInfo(minimum, maximum, typeName, minIsExclusive, maxIsExclusive);
-                    }
-                }
-
-                // Check for Required attribute
-                if (includeRequired)
-                {
-                    var requiredAttr = property.GetAttributes()
-                        .FirstOrDefault(a => a.AttributeClass?.Name == "RequiredAttribute" &&
-                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
-
-                    isRequired = requiredAttr != null;
-                }
-
-                // Check for Display attribute
-                if (includeDisplay)
-                {
-                    var displayAttr = property.GetAttributes()
-                        .FirstOrDefault(a => a.AttributeClass?.Name == "DisplayAttribute" &&
-                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
-
-                    if (displayAttr != null)
-                    {
-                        string? name = null;
-                        string? shortName = null;
-                        string? displayDescription = null;
-
-                        // Extract named arguments
-                        foreach (var namedArg in displayAttr.NamedArguments)
-                        {
-                            if (namedArg.Key == "Name" && namedArg.Value.Value is string nameValue)
-                            {
-                                name = nameValue;
-                            }
-                            else if (namedArg.Key == "ShortName" && namedArg.Value.Value is string shortNameValue)
-                            {
-                                shortName = shortNameValue;
-                            }
-                            else if (namedArg.Key == "Description" && namedArg.Value.Value is string descriptionValue)
-                            {
-                                displayDescription = descriptionValue;
-                            }
-                        }
-
-                        // Only create DisplayInfo if at least one value is present
-                        if (name != null || shortName != null || displayDescription != null)
-                        {
-                            display = new DisplayInfo(name, shortName, displayDescription);
-                        }
-                    }
-                }
-
-                // Check for Description attribute
-                if (includeDescription)
-                {
-                    var descriptionAttr = property.GetAttributes()
-                        .FirstOrDefault(a => a.AttributeClass?.Name == "DescriptionAttribute" &&
-                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel");
-
-                    if (descriptionAttr != null && descriptionAttr.ConstructorArguments.Length > 0)
-                    {
-                        string? text = descriptionAttr.ConstructorArguments[0].Value as string;
-
-                        if (text != null)
-                        {
-                            description = new DescriptionInfo(text);
-                        }
-                    }
-                }
-
-                // Check for MaxLength attribute
-                if (includeMaxLength)
-                {
-                    var maxLengthAttr = property.GetAttributes()
-                        .FirstOrDefault(a => a.AttributeClass?.Name == "MaxLengthAttribute" &&
-                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
-
-                    if (maxLengthAttr != null && maxLengthAttr.ConstructorArguments.Length > 0)
-                    {
-                        var lengthValue = (int)maxLengthAttr.ConstructorArguments[0].Value!;
-                        maxLength = new MaxLengthInfo(lengthValue);
-                    }
-                }
-
-                // Check for MinLength attribute
-                if (includeMinLength)
-                {
-                    var minLengthAttr = property.GetAttributes()
-                        .FirstOrDefault(a => a.AttributeClass?.Name == "MinLengthAttribute" &&
-                                           a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
-
-                    if (minLengthAttr != null && minLengthAttr.ConstructorArguments.Length > 0)
-                    {
-                        var lengthValue = (int)minLengthAttr.ConstructorArguments[0].Value!;
-                        minLength = new MinLengthInfo(lengthValue);
-                    }
-                }
-
-                // Only add property if it has any attributes we're tracking
-                if (stringLength.HasValue || range.HasValue || includeRequired || display.HasValue || description.HasValue || maxLength.HasValue || minLength.HasValue)
-                {
-                    propertyInfos.Add(new PropertyInformation(
-                        property.Name,
-                        stringLength,
-                        range,
-                        isRequired,
-                        display,
-                        description,
-                        maxLength,
-                        minLength));
+                    propertyInfos.Add(propInfo.Value);
                 }
             }
 
-            // Only add type if it has properties with attributes
-            if (propertyInfos.Count > 0)
+            // Extract class-level annotations
+            PropertyInformation? classAnnotations = ExtractMemberAnnotations(typeSymbol, includeStringLength, includeRange, includeRequired, includeDisplay, includeDescription, includeMaxLength, includeMinLength, classLevel: true);
+
+            // Only add type if it has properties with attributes or class-level annotations
+            if (propertyInfos.Count > 0 || classAnnotations.HasValue)
             {
                 var typeName = typeSymbol.Name;
                 var namespaceName = typeSymbol.ContainingNamespace?.IsGlobalNamespace == true
                     ? string.Empty
                     : typeSymbol.ContainingNamespace?.ToDisplayString() ?? string.Empty;
 
-                builder.Add(new TypeInformation(typeName, namespaceName, propertyInfos.ToImmutable()));
+                builder.Add(new TypeInformation(typeName, namespaceName, propertyInfos.ToImmutable(), classAnnotations));
             }
         }
 
         return builder.ToImmutable();
+    }
+
+    private static PropertyInformation? ExtractMemberAnnotations(
+        ISymbol symbol,
+        bool includeStringLength,
+        bool includeRange,
+        bool includeRequired,
+        bool includeDisplay,
+        bool includeDescription,
+        bool includeMaxLength,
+        bool includeMinLength,
+        bool classLevel = false)
+    {
+        StringLengthInfo? stringLength = null;
+        RangeInfo? range = null;
+        bool isRequired = false;
+        DisplayInfo? display = null;
+        DescriptionInfo? description = null;
+        MaxLengthInfo? maxLength = null;
+        MinLengthInfo? minLength = null;
+
+        // Check for StringLength attribute
+        if (includeStringLength)
+        {
+            var stringLengthAttr = symbol.GetAttributes()
+                .FirstOrDefault(a => a.AttributeClass?.Name == "StringLengthAttribute" &&
+                                   a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
+
+            if (stringLengthAttr != null && stringLengthAttr.ConstructorArguments.Length > 0)
+            {
+                var slMaxLength = (int)stringLengthAttr.ConstructorArguments[0].Value!;
+
+                // Check for MinimumLength named argument
+                var minLengthArg = stringLengthAttr.NamedArguments.FirstOrDefault(na => na.Key == "MinimumLength");
+                int slMinLength = 0;
+                if (minLengthArg.Key != null && minLengthArg.Value.Value is int minValue)
+                {
+                    slMinLength = minValue;
+                }
+
+                stringLength = new StringLengthInfo(slMaxLength, slMinLength);
+            }
+        }
+
+        // Check for Range attribute
+        if (includeRange)
+        {
+            var rangeAttr = symbol.GetAttributes()
+                .FirstOrDefault(a => a.AttributeClass?.Name == "RangeAttribute" &&
+                                   a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
+
+            if (rangeAttr != null && rangeAttr.ConstructorArguments.Length >= 2)
+            {
+                var minimumValue = rangeAttr.ConstructorArguments[0].Value;
+                var maximumValue = rangeAttr.ConstructorArguments[1].Value;
+                var minimum = FormatValue(minimumValue);
+                var maximum = FormatValue(maximumValue);
+                var typeName = rangeAttr.ConstructorArguments[0].Type?.ToDisplayString() ?? "int";
+
+                // Check for MinimumIsExclusive and MaximumIsExclusive named arguments
+                var minIsExclusiveArg = rangeAttr.NamedArguments.FirstOrDefault(na => na.Key == "MinimumIsExclusive");
+                bool minIsExclusive = false;
+                if (minIsExclusiveArg.Key != null && minIsExclusiveArg.Value.Value is bool minExclValue)
+                {
+                    minIsExclusive = minExclValue;
+                }
+
+                var maxIsExclusiveArg = rangeAttr.NamedArguments.FirstOrDefault(na => na.Key == "MaximumIsExclusive");
+                bool maxIsExclusive = false;
+                if (maxIsExclusiveArg.Key != null && maxIsExclusiveArg.Value.Value is bool maxExclValue)
+                {
+                    maxIsExclusive = maxExclValue;
+                }
+
+                range = new RangeInfo(minimum, maximum, typeName, minIsExclusive, maxIsExclusive);
+            }
+        }
+
+        // Check for Required attribute
+        if (includeRequired)
+        {
+            var requiredAttr = symbol.GetAttributes()
+                .FirstOrDefault(a => a.AttributeClass?.Name == "RequiredAttribute" &&
+                                   a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
+
+            isRequired = requiredAttr != null;
+        }
+
+        // Check for Display attribute
+        if (includeDisplay)
+        {
+            var displayAttr = symbol.GetAttributes()
+                .FirstOrDefault(a => a.AttributeClass?.Name == "DisplayAttribute" &&
+                                   a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
+
+            if (displayAttr != null)
+            {
+                string? name = null;
+                string? shortName = null;
+                string? displayDescription = null;
+
+                // Extract named arguments
+                foreach (var namedArg in displayAttr.NamedArguments)
+                {
+                    if (namedArg.Key == "Name" && namedArg.Value.Value is string nameValue)
+                    {
+                        name = nameValue;
+                    }
+                    else if (namedArg.Key == "ShortName" && namedArg.Value.Value is string shortNameValue)
+                    {
+                        shortName = shortNameValue;
+                    }
+                    else if (namedArg.Key == "Description" && namedArg.Value.Value is string descriptionValue)
+                    {
+                        displayDescription = descriptionValue;
+                    }
+                }
+
+                // Only create DisplayInfo if at least one value is present
+                if (name != null || shortName != null || displayDescription != null)
+                {
+                    display = new DisplayInfo(name, shortName, displayDescription);
+                }
+            }
+        }
+
+        // Check for Description attribute
+        if (includeDescription)
+        {
+            var descriptionAttr = symbol.GetAttributes()
+                .FirstOrDefault(a => a.AttributeClass?.Name == "DescriptionAttribute" &&
+                                   a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel");
+
+            if (descriptionAttr != null && descriptionAttr.ConstructorArguments.Length > 0)
+            {
+                string? text = descriptionAttr.ConstructorArguments[0].Value as string;
+
+                if (text != null)
+                {
+                    description = new DescriptionInfo(text);
+                }
+            }
+        }
+
+        // Check for MaxLength attribute
+        if (includeMaxLength)
+        {
+            var maxLengthAttr = symbol.GetAttributes()
+                .FirstOrDefault(a => a.AttributeClass?.Name == "MaxLengthAttribute" &&
+                                   a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
+
+            if (maxLengthAttr != null && maxLengthAttr.ConstructorArguments.Length > 0)
+            {
+                var lengthValue = (int)maxLengthAttr.ConstructorArguments[0].Value!;
+                maxLength = new MaxLengthInfo(lengthValue);
+            }
+        }
+
+        // Check for MinLength attribute
+        if (includeMinLength)
+        {
+            var minLengthAttr = symbol.GetAttributes()
+                .FirstOrDefault(a => a.AttributeClass?.Name == "MinLengthAttribute" &&
+                                   a.AttributeClass?.ContainingNamespace?.ToDisplayString() == "System.ComponentModel.DataAnnotations");
+
+            if (minLengthAttr != null && minLengthAttr.ConstructorArguments.Length > 0)
+            {
+                var lengthValue = (int)minLengthAttr.ConstructorArguments[0].Value!;
+                minLength = new MinLengthInfo(lengthValue);
+            }
+        }
+
+        if (stringLength.HasValue || range.HasValue || (classLevel ? isRequired : includeRequired) || display.HasValue || description.HasValue || maxLength.HasValue || minLength.HasValue)
+        {
+            return new PropertyInformation(symbol.Name, stringLength, range, isRequired, display, description, maxLength, minLength);
+        }
+
+        return null;
     }
 
     private static string FormatValue(object? value)

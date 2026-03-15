@@ -8,6 +8,7 @@
 //---------------------------------------------------------------------------------------
 
 #nullable enable
+#pragma warning disable CS0108 // Disable warning about hiding members in the original class, as this is intentional for the generated Annotations class
 
     /// <summary>
     /// Data annotation values for MyFirstClass.
@@ -33,7 +34,7 @@
                     /// <summary>
                     /// Description text for FirstName.
                     /// </summary>
-                    public const string? Text = "First name of the person";
+                    public const string Text = "First name of the person";
                 }
             }
 
@@ -50,7 +51,7 @@
                     /// <summary>
                     /// Description text for LastName.
                     /// </summary>
-                    public const string? Text = "Last name of the person";
+                    public const string Text = "Last name of the person";
                 }
             }
         }
@@ -80,7 +81,7 @@
                     /// <summary>
                     /// Description text for Email.
                     /// </summary>
-                    public const string? Text = "Contact email address";
+                    public const string Text = "Contact email address";
                 }
             }
 
@@ -97,7 +98,7 @@
                     /// <summary>
                     /// Description text for Phone.
                     /// </summary>
-                    public const string? Text = "Contact phone number";
+                    public const string Text = "Contact phone number";
                 }
             }
         }

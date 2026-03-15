@@ -16,6 +16,18 @@ namespace Pekspro.DataAnnotationValuesExtractor
         public bool StringLength { get; set; } = true;
 
         /// <summary>
+        /// Whether MaxLength attribute values should be included.
+        /// Is set to true by default.
+        /// </summary>
+        public bool MaxLength { get; set; } = true;
+
+        /// <summary>
+        /// Whether MinLength attribute values should be included.
+        /// Is set to true by default.
+        /// </summary>
+        public bool MinLength { get; set; } = true;
+
+        /// <summary>
         /// Whether Range attribute values should be included.
         /// Is set to true by default.
         /// </summary>
@@ -38,18 +50,6 @@ namespace Pekspro.DataAnnotationValuesExtractor
         /// Is set to false by default.
         /// </summary>
         public bool Description { get; set; }
-
-        /// <summary>
-        /// Whether MaxLength attribute values should be included.
-        /// Is set to false by default.
-        /// </summary>
-        public bool MaxLength { get; set; }
-
-        /// <summary>
-        /// Whether MinLength attribute values should be included.
-        /// Is set to false by default.
-        /// </summary>
-        public bool MinLength { get; set; }
     }
 }
 

@@ -179,8 +179,8 @@ the following properties to control which constants are generated:
 | Property       | Default | Generated Constants                                              | Description                                     |
 | -------------- | ------- | ---------------------------------------------------------------- | ----------------------------------------------- |
 | `StringLength` | `true`  | `MaximumLength`, `MinimumLength`                                 | Extract values from `[StringLength]` attribute. |
-| `MinLength`    | `false` | `MinLength`                                                      | Extract value from `[MinLength]` attribute.      |
-| `MaxLength`    | `false` | `MaxLength`                                                      | Extract value from `[MaxLength]` attribute.      |
+| `MinLength`    | `true`  | `MinLength`                                                      | Extract value from `[MinLength]` attribute.      |
+| `MaxLength`    | `true`  | `MaxLength`                                                      | Extract value from `[MaxLength]` attribute.      |
 | `Range`        | `true`  | `Minimum`, `Maximum`, `MinimumIsExclusive`, `MaximumIsExclusive` | Extract values from `[Range]` attribute.        |
 | `Required`     | `false` | `IsRequired`                                                     | Detect presence of `[Required]` attribute.      |
 | `Display`      | `false` | `Name`, `Description`, `ShortName`                               | Extract values from `[Display]` attribute.       |

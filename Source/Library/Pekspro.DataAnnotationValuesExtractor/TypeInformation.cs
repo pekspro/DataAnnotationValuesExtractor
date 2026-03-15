@@ -12,18 +12,21 @@ public readonly struct TypeInformation : IEquatable<TypeInformation>
     public readonly string TypeName;
     public readonly string Namespace;
     public readonly ImmutableArray<PropertyInformation> Properties;
+    public readonly PropertyInformation? ClassAnnotations;
 
-    public TypeInformation(string typeName, string namespaceName, ImmutableArray<PropertyInformation> properties)
+    public TypeInformation(string typeName, string namespaceName, ImmutableArray<PropertyInformation> properties, PropertyInformation? classAnnotations = null)
     {
         TypeName = typeName;
         Namespace = namespaceName;
         Properties = properties;
+        ClassAnnotations = classAnnotations;
     }
 
     public bool Equals(TypeInformation other)
     {
         return TypeName == other.TypeName
             && Namespace == other.Namespace
+            && Nullable.Equals(ClassAnnotations, other.ClassAnnotations)
             && PropertiesEqual(Properties, other.Properties);
     }
 
@@ -67,6 +70,7 @@ public readonly struct TypeInformation : IEquatable<TypeInformation>
             int hash = 17;
             hash = hash * 23 + (TypeName?.GetHashCode() ?? 0);
             hash = hash * 23 + (Namespace?.GetHashCode() ?? 0);
+            hash = hash * 23 + (ClassAnnotations?.GetHashCode() ?? 0);
 
             if (!Properties.IsDefault)
             {

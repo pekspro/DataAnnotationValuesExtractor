@@ -22,29 +22,20 @@
         public static class Annotations
         {
             /// <summary>
-            /// Data annotation values for Score.
+            /// Data annotation values for the MyClass class.
             /// </summary>
-            public static class Score
+            public static class Self
             {
                 /// <summary>
-                /// Minimum value for Score.
+                /// Description attribute values for MyClass.
                 /// </summary>
-                public const int Minimum = 1;
-
-                /// <summary>
-                /// Maximum value for Score.
-                /// </summary>
-                public const int Maximum = 100;
-
-                /// <summary>
-                /// Indicates whether the minimum value for Score is exclusive.
-                /// </summary>
-                public const bool MinimumIsExclusive = false;
-
-                /// <summary>
-                /// Indicates whether the maximum value for Score is exclusive.
-                /// </summary>
-                public const bool MaximumIsExclusive = false;
+                public static class Description
+                {
+                    /// <summary>
+                    /// Description text for MyClass.
+                    /// </summary>
+                    public const string Text = "A class with no annotated properties";
+                }
             }
         }
     }

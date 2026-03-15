@@ -223,4 +223,51 @@ public partial class MyClass
             .UseDirectory("Snapshots")
             .DisableRequireUniquePrefix();
     }
+
+    [Fact]
+    public Task Description_OnClass()
+    {
+        const string input = @"
+using Pekspro.DataAnnotationValuesExtractor;
+using System.ComponentModel;
+
+[DataAnnotationValues(Description = true)]
+[Description(""A class representing a person"")]
+public partial class MyClass
+{
+    [Description(""The first name of the user"")]
+    public string? FirstName { get; set; }
+}
+";
+        var (diagnostics, output) = TestHelpers.GetGeneratedOutput<DataAnnotationValuesExtractor>(input);
+
+        Assert.Empty(diagnostics);
+        return Verifier.Verify(output)
+            .ScrubGeneratedCodeAttribute()
+            .UseDirectory("Snapshots")
+            .DisableRequireUniquePrefix();
+    }
+
+    [Fact]
+    public Task Description_OnClassOnly()
+    {
+        const string input = @"
+using Pekspro.DataAnnotationValuesExtractor;
+using System.ComponentModel;
+
+[DataAnnotationValues(Description = true)]
+[Description(""A class with no annotated properties"")]
+public partial class MyClass
+{
+    public string? FirstName { get; set; }
+}
+";
+        var (diagnostics, output) = TestHelpers.GetGeneratedOutput<DataAnnotationValuesExtractor>(input);
+
+        Assert.Empty(diagnostics);
+        return Verifier.Verify(output)
+            .ScrubGeneratedCodeAttribute()
+            .UseDirectory("Snapshots")
+            .DisableRequireUniquePrefix();
+    }
 }

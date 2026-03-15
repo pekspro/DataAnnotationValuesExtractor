@@ -15,6 +15,7 @@ public static class SourceGenerationHelper
 //---------------------------------------------------------------------------------------
 
 #nullable enable
+#pragma warning disable CS0108 // Disable warning about hiding members in the original class, as this is intentional for the generated Annotations class
 ";
 
     public static string GenerateExtensionClass(in DataAnnotationValuesDetailedOptions options)
@@ -72,232 +73,59 @@ namespace ").Append(currentNamespace).Append(@"
 
             foreach (var typeInfo in namespaceGroup)
             {
-                // Only generate if there are properties with annotations
-                if (typeInfo.Properties.IsDefault || typeInfo.Properties.Length == 0)
+                // Only generate if there are properties with annotations or class-level annotations
+                if ((typeInfo.Properties.IsDefault || typeInfo.Properties.Length == 0) && !typeInfo.ClassAnnotations.HasValue)
                     continue;
 
                 bool hasAnnotations = false;
                 StringBuilder typeSb = new StringBuilder();
 
-                foreach (var property in typeInfo.Properties)
+                // Add Self class for class-level annotations
+                if (typeInfo.ClassAnnotations.HasValue)
                 {
-                    StringBuilder propertySb = new StringBuilder();
-                    bool firstValue = true;
-
-                    // Add StringLength values
-                    if (property.StringLength.HasValue)
+                    var classAnnotation = typeInfo.ClassAnnotations.Value;
+                    var selfSb = BuildAnnotationContent(in classAnnotation, in options);
+                    if (selfSb.Length > 0)
                     {
-                        if (!firstValue)
-                        {
-                            propertySb.AppendLine();
-                        }
-                        else
-                        {
-                            firstValue = false;
-                        }
-
-                        var stringLength = property.StringLength.Value;
-                        
-                        propertySb.Append(@"
-                /// <summary>
-                /// Maximum length for ").Append(property.PropertyName).Append(@".
-                /// </summary>
-                public const int MaximumLength = ").Append(stringLength.MaximumLength).Append(";");
-                        
-                        propertySb.Append(@"
-
-                /// <summary>
-                /// Minimum length for ").Append(property.PropertyName).Append(@".
-                /// </summary>
-                public const int MinimumLength = ").Append(stringLength.MinimumLength).Append(";");
-                    }
-
-                    // Add MinLength values
-                    if (property.MinLength.HasValue)
-                    {
-                        if (!firstValue)
-                        {
-                            propertySb.AppendLine();
-                        }
-                        else
-                        {
-                            firstValue = false;
-                        }
-
-                        var minLength = property.MinLength.Value;
-
-                        propertySb.Append(@"
-                /// <summary>
-                /// Minimum length for ").Append(property.PropertyName).Append(@".
-                /// </summary>
-                public const int MinLength = ").Append(minLength.Length).Append(";");
-                    }
-
-                    // Add MaxLength values
-                    if (property.MaxLength.HasValue)
-                    {
-                        if (!firstValue)
-                        {
-                            propertySb.AppendLine();
-                        }
-                        else
-                        {
-                            firstValue = false;
-                        }
-
-                        var maxLength = property.MaxLength.Value;
-
-                        propertySb.Append(@"
-                /// <summary>
-                /// Maximum length for ").Append(property.PropertyName).Append(@".
-                /// </summary>
-                public const int MaxLength = ").Append(maxLength.Length).Append(";");
-                    }
-
-                    // Add Range values
-                    if (property.Range.HasValue)
-                    {
-                        if (!firstValue)
-                        {
-                            propertySb.AppendLine();
-                        }
-                        else
-                        {
-                            firstValue = false;
-                        }
-
-                        var range = property.Range.Value;
-                        
-                        propertySb.Append(@"
-                /// <summary>
-                /// Minimum value for ").Append(property.PropertyName).Append(@".
-                /// </summary>
-                public const ").Append(range.TypeName).Append(" Minimum = ").Append(range.Minimum).Append(";");
-                        
-                        propertySb.Append(@"
-
-                /// <summary>
-                /// Maximum value for ").Append(property.PropertyName).Append(@".
-                /// </summary>
-                public const ").Append(range.TypeName).Append(" Maximum = ").Append(range.Maximum).Append(";");
-                        
-                        propertySb.Append(@"
-
-                /// <summary>
-                /// Indicates whether the minimum value for ").Append(property.PropertyName).Append(@" is exclusive.
-                /// </summary>
-                public const bool MinimumIsExclusive = ").Append(range.MinimumIsExclusive ? "true" : "false").Append(";");
-                        
-                        propertySb.Append(@"
-
-                /// <summary>
-                /// Indicates whether the maximum value for ").Append(property.PropertyName).Append(@" is exclusive.
-                /// </summary>
-                public const bool MaximumIsExclusive = ").Append(range.MaximumIsExclusive ? "true" : "false").Append(";");
-                    }
-
-                    // Add Required values
-                    if (options.AddRequired)
-                    {
-                        if (!firstValue)
-                        {
-                            propertySb.AppendLine();
-                        }
-                        else
-                        {
-                            firstValue = false;
-                        }
-
-                        propertySb.Append(@"
-                /// <summary>
-                /// Indicates whether ").Append(property.PropertyName).Append(@" is required.
-                /// </summary>
-                public const bool IsRequired = ").Append(property.IsRequired ? "true" : "false").Append(";");
-                    }
-
-                    // Add Display values
-                    if (options.AddDisplay && property.Display.HasValue)
-                    {
-                        if (!firstValue)
-                        {
-                            propertySb.AppendLine();
-                        }
-                        else
-                        {
-                            firstValue = false;
-                        }
-
-                        var display = property.Display.Value;
-
-                        propertySb.Append(@"
-                /// <summary>
-                /// Display attribute values for ").Append(property.PropertyName).Append(@".
-                /// </summary>
-                public static class Display
-                {
-                    /// <summary>
-                    /// Display name for ").Append(property.PropertyName).Append(@".
-                    /// </summary>
-                    public const string? Name = ").Append(display.Name != null ? EscapeString(display.Name) : "null").Append(@";
-
-                    /// <summary>
-                    /// Short display name for ").Append(property.PropertyName).Append(@".
-                    /// </summary>
-                    public const string? ShortName = ").Append(display.ShortName != null ? EscapeString(display.ShortName) : "null").Append(@";
-
-                    /// <summary>
-                    /// Description for ").Append(property.PropertyName).Append(@".
-                    /// </summary>
-                    public const string? Description = ").Append(display.Description != null ? EscapeString(display.Description) : "null").Append(@";
-                }");
-                    }
-
-                    // Add Description values
-                    if (options.AddDescription && property.Description.HasValue)
-                    {
-                        if (!firstValue)
-                        {
-                            propertySb.AppendLine();
-                        }
-                        else
-                        {
-                            firstValue = false;
-                        }
-
-                        var description = property.Description.Value;
-
-                        propertySb.Append(@"
-                /// <summary>
-                /// Description attribute values for ").Append(property.PropertyName).Append(@".
-                /// </summary>
-                public static class Description
-                {
-                    /// <summary>
-                    /// Description text for ").Append(property.PropertyName).Append(@".
-                    /// </summary>
-                    public const string? Text = ").Append(description.Text != null ? EscapeString(description.Text) : "null").Append(@";
-                }");
-                    }
-
-                    if (propertySb.Length > 0)
-                    {
-                        if (hasAnnotations)
-                        {
-                            typeSb.AppendLine();
-                        }
-
                         hasAnnotations = true;
-                        
-                        // Add the property wrapper
                         typeSb.Append(@"
+            /// <summary>
+            /// Data annotation values for the ").Append(typeInfo.TypeName).Append(@" class.
+            /// </summary>
+            public static class Self
+            {");
+                        typeSb.Append(selfSb);
+                        typeSb.Append(@"
+            }");
+                    }
+                }
+
+                if (!typeInfo.Properties.IsDefault)
+                {
+                    foreach (var property in typeInfo.Properties)
+                    {
+                        var propertySb = BuildAnnotationContent(in property, in options);
+
+                        if (propertySb.Length > 0)
+                        {
+                            if (hasAnnotations)
+                            {
+                                typeSb.AppendLine();
+                            }
+
+                            hasAnnotations = true;
+
+                            // Add the property wrapper
+                            typeSb.Append(@"
             /// <summary>
             /// Data annotation values for ").Append(property.PropertyName).Append(@".
             /// </summary>
             public static class ").Append(property.PropertyName).Append(@"
             {");
-                        typeSb.Append(propertySb);
-                        typeSb.Append(@"
+                            typeSb.Append(propertySb);
+                            typeSb.Append(@"
             }");
+                        }
                     }
                 }
 
@@ -344,6 +172,160 @@ namespace ").Append(currentNamespace).Append(@"
         }
 
         return added;
+    }
+
+    private static StringBuilder BuildAnnotationContent(in PropertyInformation property, in DataAnnotationValuesDetailedOptions options)
+    {
+        StringBuilder sb = new StringBuilder();
+        bool firstValue = true;
+
+        // Add StringLength values
+        if (property.StringLength.HasValue)
+        {
+            if (!firstValue) { sb.AppendLine(); } else { firstValue = false; }
+
+            var stringLength = property.StringLength.Value;
+
+            sb.Append(@"
+                /// <summary>
+                /// Maximum length for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public const int MaximumLength = ").Append(stringLength.MaximumLength).Append(";");
+
+            sb.Append(@"
+
+                /// <summary>
+                /// Minimum length for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public const int MinimumLength = ").Append(stringLength.MinimumLength).Append(";");
+        }
+
+        // Add MinLength values
+        if (property.MinLength.HasValue)
+        {
+            if (!firstValue) { sb.AppendLine(); } else { firstValue = false; }
+
+            var minLength = property.MinLength.Value;
+
+            sb.Append(@"
+                /// <summary>
+                /// Minimum length for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public const int MinLength = ").Append(minLength.Length).Append(";");
+        }
+
+        // Add MaxLength values
+        if (property.MaxLength.HasValue)
+        {
+            if (!firstValue) { sb.AppendLine(); } else { firstValue = false; }
+
+            var maxLength = property.MaxLength.Value;
+
+            sb.Append(@"
+                /// <summary>
+                /// Maximum length for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public const int MaxLength = ").Append(maxLength.Length).Append(";");
+        }
+
+        // Add Range values
+        if (property.Range.HasValue)
+        {
+            if (!firstValue) { sb.AppendLine(); } else { firstValue = false; }
+
+            var range = property.Range.Value;
+
+            sb.Append(@"
+                /// <summary>
+                /// Minimum value for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public const ").Append(range.TypeName).Append(" Minimum = ").Append(range.Minimum).Append(";");
+
+            sb.Append(@"
+
+                /// <summary>
+                /// Maximum value for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public const ").Append(range.TypeName).Append(" Maximum = ").Append(range.Maximum).Append(";");
+
+            sb.Append(@"
+
+                /// <summary>
+                /// Indicates whether the minimum value for ").Append(property.PropertyName).Append(@" is exclusive.
+                /// </summary>
+                public const bool MinimumIsExclusive = ").Append(range.MinimumIsExclusive ? "true" : "false").Append(";");
+
+            sb.Append(@"
+
+                /// <summary>
+                /// Indicates whether the maximum value for ").Append(property.PropertyName).Append(@" is exclusive.
+                /// </summary>
+                public const bool MaximumIsExclusive = ").Append(range.MaximumIsExclusive ? "true" : "false").Append(";");
+        }
+
+        // Add Required values
+        if (options.AddRequired)
+        {
+            if (!firstValue) { sb.AppendLine(); } else { firstValue = false; }
+
+            sb.Append(@"
+                /// <summary>
+                /// Indicates whether ").Append(property.PropertyName).Append(@" is required.
+                /// </summary>
+                public const bool IsRequired = ").Append(property.IsRequired ? "true" : "false").Append(";");
+        }
+
+        // Add Display values
+        if (options.AddDisplay && property.Display.HasValue)
+        {
+            if (!firstValue) { sb.AppendLine(); } else { firstValue = false; }
+
+            var display = property.Display.Value;
+
+            sb.Append(@"
+                /// <summary>
+                /// Display attribute values for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public static class Display
+                {
+                    /// <summary>
+                    /// Display name for ").Append(property.PropertyName).Append(@".
+                    /// </summary>
+                    public const ").Append(display.Name != null ? "string" : "string?").Append(@" Name = ").Append(display.Name != null ? EscapeString(display.Name) : "null").Append(@";
+
+                    /// <summary>
+                    /// Short display name for ").Append(property.PropertyName).Append(@".
+                    /// </summary>
+                    public const ").Append(display.ShortName != null ? "string" : "string?").Append(@" ShortName = ").Append(display.ShortName != null ? EscapeString(display.ShortName) : "null").Append(@";
+
+                    /// <summary>
+                    /// Description for ").Append(property.PropertyName).Append(@".
+                    /// </summary>
+                    public const ").Append(display.Description != null ? "string" : "string?").Append(@" Description = ").Append(display.Description != null ? EscapeString(display.Description) : "null").Append(@";
+                }");
+        }
+
+        // Add Description values
+        if (options.AddDescription && property.Description.HasValue)
+        {
+            if (!firstValue) { sb.AppendLine(); } else { firstValue = false; }
+
+            var description = property.Description.Value;
+
+            sb.Append(@"
+                /// <summary>
+                /// Description attribute values for ").Append(property.PropertyName).Append(@".
+                /// </summary>
+                public static class Description
+                {
+                    /// <summary>
+                    /// Description text for ").Append(property.PropertyName).Append(@".
+                    /// </summary>
+                    public const ").Append(description.Text != null ? "string" : "string?").Append(@" Text = ").Append(description.Text != null ? EscapeString(description.Text) : "null").Append(@";
+                }");
+        }
+
+        return sb;
     }
 
     private static void AddEmptyConfigurationClass(StringBuilder sb, in DataAnnotationValuesDetailedOptions options)

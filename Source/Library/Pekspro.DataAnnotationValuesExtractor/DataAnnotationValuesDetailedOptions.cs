@@ -29,8 +29,8 @@ public readonly struct DataAnnotationValuesDetailedOptions : IEquatable<DataAnno
         bool addRequired,
         bool addDisplay = false,
         bool addDescription = false,
-        bool addMaxLength = false,
-        bool addMinLength = false
+        bool addMaxLength = true,
+        bool addMinLength = true
         )
     {
         Name = name;

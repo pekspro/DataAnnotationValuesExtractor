@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations;
 /*
 Output:
 
+Player description: Player class represents a player in the game.
+
 Name length should be between 0 and 50 characters. Is required: True
 E-mail length should be between 6 and 100 characters. Is required: False
 Score should be in range: 1-100. Is required: False
@@ -18,8 +20,10 @@ Score display name: Player Score
 Name description: Name of the player
 E-mail description: E-mail of the player
 Score description: Score of the player
- */
+*/
 
+Console.WriteLine($"Player description: {Player.Annotations.Self.Description.Text}");
+Console.WriteLine();
 Console.WriteLine($"Name length should be between {Player.Annotations.Name.MinimumLength} and {Player.Annotations.Name.MaximumLength} characters. Is required: {Player.Annotations.Name.IsRequired}");
 Console.WriteLine($"E-mail length should be between {Player.Annotations.Email.MinimumLength} and {Player.Annotations.Email.MaximumLength} characters. Is required: {Player.Annotations.Email.IsRequired}");
 Console.WriteLine($"Score should be in range: {Player.Annotations.Score.Minimum}-{Player.Annotations.Score.Maximum}. Is required: {Player.Annotations.Score.IsRequired}");
@@ -35,6 +39,7 @@ Console.WriteLine($"Score description: {Player.Annotations.Score.Description.Tex
 
 
 [DataAnnotationValues(StringLength = true, MinLength = true, MaxLength = true, Range = true, Required = true, Display = true, Description = true)]
+[Description("Player class represents a player in the game.")]
 public partial class Player
 {
     [Display(Name = "Player Name", ShortName = "Name", Description = "Name of player")]

@@ -8,6 +8,7 @@
 //---------------------------------------------------------------------------------------
 
 #nullable enable
+#pragma warning disable CS0108 // Disable warning about hiding members in the original class, as this is intentional for the generated Annotations class
 
     /// <summary>
     /// Data annotation values for MyClass.
@@ -33,17 +34,17 @@
                     /// <summary>
                     /// Display name for ProductName.
                     /// </summary>
-                    public const string? Name = "Product Name";
+                    public const string Name = "Product Name";
 
                     /// <summary>
                     /// Short display name for ProductName.
                     /// </summary>
-                    public const string? ShortName = "Name";
+                    public const string ShortName = "Name";
 
                     /// <summary>
                     /// Description for ProductName.
                     /// </summary>
-                    public const string? Description = "Name of the product";
+                    public const string Description = "Name of the product";
                 }
             }
         }
